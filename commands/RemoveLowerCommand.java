@@ -5,8 +5,8 @@ import exceptions.DuplicateElementException;
 import interfaces.Elementable;
 import managers.CityManager;
 
-/** Удаляет из коллекции все элементы, превышающие заданный */
-public class RemoveGreaterCommand extends AbstractCommand implements Elementable {
+/** Удаляет из коллекции все элементы, меньшие, чем заданный */
+public class RemoveLowerCommand extends AbstractCommand implements Elementable {
 
   private final CityManager cityManager;
 
@@ -15,8 +15,8 @@ public class RemoveGreaterCommand extends AbstractCommand implements Elementable
    *
    * @param cityManager менеджер коллекций
    */
-  public RemoveGreaterCommand(CityManager cityManager) {
-    super("remove_greater", "Удаляет из коллекции все элементы, превышающие заданный.");
+  public RemoveLowerCommand(CityManager cityManager) {
+    super("remove_lower", "Удаляет из коллекции все элементы, меньшие, чем заданный.");
     this.cityManager = cityManager;
   }
 
@@ -38,12 +38,12 @@ public class RemoveGreaterCommand extends AbstractCommand implements Elementable
     }
     City newCity = cityManager.getLastCity();
     for (City city : cityManager.getCities()) {
-      if (newCity.compareTo(city) == -1) {
+      if (newCity.compareTo(city) == 1) {
         removeByIdCommand.execute(Integer.toString(cityManager.getId(city)));
       }
     }
     System.out.println(
-        "Количество элементов удаленных командой remove_greater: "
+        "Количество элементов удаленных командой remove_lower: "
             + (oldSize - cityManager.citySize() + 1));
   }
 

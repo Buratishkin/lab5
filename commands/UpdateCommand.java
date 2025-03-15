@@ -1,37 +1,58 @@
 package commands;
 
-import city.City;
-import io.InputHandler;
-import storage.CityManager;
+import interfaces.Argumentable;
+import interfaces.Elementable;
+import managers.CityManager;
+import managers.InputManager;
 
-import java.util.Scanner;
+/** Обновляет значение элемента коллекции, id которого равен заданному. */
+public class UpdateCommand extends AbstractCommand implements Argumentable, Elementable {
 
-/**
- * Команда для обновления элемента коллекции по id.
- */
-public class UpdateCommand implements Command {
-    private final CityManager cityManager;
-    private final Scanner scanner;
+  private final InputManager inputManager = new InputManager();
+  private final CityManager cityManager;
 
-    public UpdateCommand(CityManager cityManager, Scanner scanner) {
-        this.cityManager = cityManager;
-        this.scanner = scanner;
+  /**
+   * Конструктор
+   *
+   * @param cityManager менеджер коллекций
+   */
+  public UpdateCommand(CityManager cityManager) {
+    super("update", "Обновляет значение элемента коллекции, id которого равен заданному.");
+    this.cityManager = cityManager;
+  }
+
+  /**
+   * Выполнение команды
+   *
+   * @param arg аргумент
+   */
+  @Override
+  public void execute(String arg) {
+    int id = -1;
+    try {
+      id = Integer.parseInt(arg);
+    } catch (NumberFormatException e) {
+      throw new NumberFormatException("Переданный аргумент " + arg + " не является числом.");
     }
-
-    @Override
-    public void execute(String[] args) {
-        System.out.print("Введите id города для обновления: ");
-        int id = Integer.parseInt(scanner.nextLine());
-
-        if (!cityManager.getCollection().containsKey(id)) {
-            System.out.println("Город с id " + id + " не найден.");
-            return;
-        }
-
-        InputHandler inputHandler = new InputHandler(scanner);
-        City newCity = inputHandler.inputCity();
-        newCity.setId(id); // Сохраняем старый id
-        cityManager.updateCity(id, newCity);
-        System.out.println("Город с id " + id + " успешно обновлен.");
+    if (!cityManager.contains(id)) {
+      throw new IllegalArgumentException(
+          "В коллекции нет объекта с индексом "
+              + id
+              + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
+    } else {
+      cityManager.removeCity(cityManager.getById(id));
+      cityManager.addCity(inputManager.createCity(id));
+      System.out.println("Город обновлён.");
     }
+  }
+
+  @Override
+  public boolean isElementable() {
+    return true;
+  }
+
+  @Override
+  public boolean isArgumentable() {
+    return true;
+  }
 }

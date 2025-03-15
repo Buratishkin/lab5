@@ -1,20 +1,44 @@
 package commands;
 
-import storage.CityManager;
+import managers.CityManager;
+import service.IdCreator;
 
-/**
- * Команда для очистки коллекции.
- */
-public class ClearCommand implements Command {
-    private final CityManager cityManager;
+/** Очищает коллекцию */
+public class ClearCommand extends AbstractCommand {
 
-    public ClearCommand(CityManager cityManager) {
-        this.cityManager = cityManager;
-    }
+  private final CityManager cityManager;
+  private final IdCreator idCreator;
 
-    @Override
-    public void execute(String[] args) {
-        cityManager.clearCollection();
-        System.out.println("Коллекция успешно очищена.");
-    }
+  /**
+   * Конструктор
+   *
+   * @param cityManager менеджер коллекций
+   */
+  public ClearCommand(CityManager cityManager) {
+    super("clear", "Очищает коллекцию.");
+    this.cityManager = cityManager;
+    idCreator = new IdCreator(cityManager);
+  }
+
+  /**
+   * Выполнение команды
+   *
+   * @param arg аргумент
+   */
+  @Override
+  public void execute(String arg) {
+    cityManager.clear();
+    idCreator.clearId();
+    System.out.println("Коллекция очищена");
+  }
+
+  @Override
+  public boolean isArgumentable() {
+    return false;
+  }
+
+  @Override
+  public boolean isElementable() {
+    return true;
+  }
 }

@@ -1,36 +1,71 @@
 package commands;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
+import managers.CommandManager;
+import managers.FileManager;
+import service.CommandHandler;
 
-/**
- * Команда для выполнения скрипта из файла.
- */
-public class ExecuteScriptCommand implements Command {
-    private final CommandHandler commandHandler;
-    private final Scanner scanner;
+/** Считываются и исполняются скрипт из указанного файла */
+public class ExecuteScriptCommand extends AbstractCommand {
+  private final CommandManager commandManager;
+  private Set<String> pastFiles = new HashSet<>();
+  private final CommandHandler commandHandler;
 
-    public ExecuteScriptCommand(CommandHandler commandHandler, Scanner scanner) {
-        this.commandHandler = commandHandler;
-        this.scanner = scanner;
+  /**
+   * Конструктор
+   *
+   * @param commandManager менеджер коллекций
+   * @param commandHandler обработчик команд
+   */
+  public ExecuteScriptCommand(CommandManager commandManager, CommandHandler commandHandler) {
+    super("execute_script", "Считываются и исполняются скрипт из указанного файла.");
+    this.commandManager = commandManager;
+    this.commandHandler = commandHandler;
+  }
+
+  /**
+   * Выполнение команды
+   *
+   * @param arg аргумент
+   */
+  @Override
+  public void execute(String arg) {
+    String fileName = arg;
+    File file = new File(fileName);
+
+    if (!FileManager.canRead(file)) {
+      return;
     }
 
-    @Override
-    public void execute(String[] args) {
-        System.out.print("Введите имя файла скрипта: ");
-        String fileName = scanner.nextLine();
-
-        try (Scanner fileScanner = new Scanner(new File(fileName))) {
-            while (fileScanner.hasNextLine()) {
-                String command = fileScanner.nextLine().trim();
-                if (!command.isEmpty()) {
-                    System.out.println("Выполнение команды: " + command);
-                    commandHandler.handleCommand(command);
-                }
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Файл скрипта не найден: " + fileName);
-        }
+    if (pastFiles.contains(file.getAbsolutePath())) {
+      System.out.println(
+          "В скрипте обнаружена рекурсия. Повторно вызывается файл: " + file.getAbsolutePath());
+      return;
     }
+
+    try (Scanner scanner = new Scanner(file)) {
+      pastFiles.add(file.getAbsolutePath());
+      while (scanner.hasNext()) {
+        String line = scanner.nextLine();
+        if (line.isEmpty()) break;
+        commandHandler.run(commandManager, line);
+      }
+      commandHandler.setMode(true);
+    } catch (Exception e) {
+      System.out.println("При выполнении скрипта возникла ошибка: " + e.getMessage());
+    }
+  }
+
+  @Override
+  public boolean isArgumentable() {
+    return true;
+  }
+
+  @Override
+  public boolean isElementable() {
+    return false;
+  }
 }

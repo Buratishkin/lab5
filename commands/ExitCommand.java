@@ -1,12 +1,30 @@
 package commands;
 
-/**
- * Команда для завершения программы.
- */
-public class ExitCommand implements Command {
-    @Override
-    public void execute(String[] args) {
-        System.out.println("Завершение программы.");
-        System.exit(0);
-    }
+/** Завершает программу без сохранения в файл */
+public class ExitCommand extends AbstractCommand {
+  /** Конструктор */
+  public ExitCommand() {
+    super("exit", "Завершает программу без сохранения в файл.");
+  }
+
+  /**
+   * Выполнение команды
+   *
+   * @param arg аргумент
+   */
+  @Override
+  public void execute(String arg) {
+    System.out.println("Завершение программы");
+    System.exit(0);
+  }
+
+  @Override
+  public boolean isArgumentable() {
+    return false;
+  }
+
+  @Override
+  public boolean isElementable() {
+    return false;
+  }
 }

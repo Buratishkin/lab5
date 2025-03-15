@@ -1,27 +1,50 @@
 package commands;
 
-import io.XmlWriter;
-import storage.CityManager;
+import managers.CityManager;
+import managers.EnvManager;
+import managers.FileManager;
 
-/**
- * Команда для сохранения коллекции в файл.
- */
-public class SaveCommand implements Command {
-    private final CityManager cityManager;
-    private final String fileName;
+/** Сохраняет коллекцию в файл */
+public class SaveCommand extends AbstractCommand {
 
-    public SaveCommand(CityManager cityManager, String fileName) {
-        this.cityManager = cityManager;
-        this.fileName = fileName;
+  private final CityManager cityManager;
+
+  /**
+   * Конструктор
+   *
+   * @param cityManager менеджер коллекций
+   */
+  public SaveCommand(CityManager cityManager) {
+    super("save", "Сохраняет коллекцию в файл.");
+    this.cityManager = cityManager;
+  }
+
+  /**
+   * Выполнение команды
+   *
+   * @param arg аргумент
+   */
+  @Override
+  public void execute(String arg) {
+    if (arg.isEmpty()) {
+      throw new IllegalArgumentException("Не передано имя файла.");
     }
-
-    @Override
-    public void execute(String[] args) {
-        try {
-            XmlWriter.writeCitiesToFile(fileName, cityManager.getAllCities());
-            System.out.println("Коллекция успешно сохранена в файл.");
-        } catch (Exception e) {
-            System.out.println("Ошибка при сохранении коллекции: " + e.getMessage());
-        }
+    FileManager fileManager = new FileManager(EnvManager.getEnv(), cityManager);
+    try {
+      fileManager.saveCollection();
+    } catch (Exception e) {
+      System.out.println("Возникла ошибка: " + e.getMessage());
     }
+    System.out.println("Коллекция сохранена в файл.");
+  }
+
+  @Override
+  public boolean isElementable() {
+    return false;
+  }
+
+  @Override
+  public boolean isArgumentable() {
+    return false;
+  }
 }
