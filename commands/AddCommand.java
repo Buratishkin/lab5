@@ -1,27 +1,33 @@
 package commands;
 
-import classes.City;
 import exceptions.DuplicateElementException;
 import interfaces.Elementable;
-import managers.CityManager;
-import managers.InputManager;
+import interfaces.Identifiable;
+import managers.CollectionManager;
+import io.InputManager;
 import service.IdCreator;
 
 /** Добавляет новый элемент в коллекцию */
-public class AddCommand extends AbstractCommand implements Elementable {
-
-  private final CityManager cityManager;
-  private final IdCreator idCreator;
+public class AddCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Elementable {
+  private final CollectionManager<T> collectionManager;
+  private final IdCreator<T> idCreator;
+  private final InputManager<T> inputManager;
+  private boolean consoleMode = true;
+              
+  public void setConsoleMode(boolean consoleMode){
+    this.consoleMode = consoleMode;
+  }
 
   /**
    * Конструктор
    *
-   * @param cityManager коллекция городов
+   * @param collectionManager коллекция городов
    */
-  public AddCommand(CityManager cityManager) {
+  public AddCommand(CollectionManager<T> collectionManager, IdCreator<T> idCreator, InputManager<T> inputManager, boolean isConsoleRead) {
     super("add", "Добавляет новый элемент в коллекцию.");
-    this.cityManager = cityManager;
-    idCreator = new IdCreator(cityManager);
+    this.collectionManager = collectionManager;
+    this.idCreator = idCreator;
+    this.inputManager = inputManager;
   }
 
   /**
@@ -31,15 +37,14 @@ public class AddCommand extends AbstractCommand implements Elementable {
    */
   @Override
   public void execute(String arg) {
-    InputManager inputManager = new InputManager();
-    City newCity = inputManager.createCity(idCreator.getId());
-    int oldSize = cityManager.citySize();
-    cityManager.addCity(newCity);
-    if (oldSize == cityManager.citySize()) {
-      idCreator.delId(newCity.getId());
+    T newELement = inputManager.inputObject(consoleMode);
+    int oldSize = collectionManager.objectsSize();
+    collectionManager.addElement(newELement);
+    if (oldSize == collectionManager.objectsSize()) {
+      idCreator.delId(newELement.getId());
       throw new DuplicateElementException("Элемент не добавлен, так как он уже есть в коллекции.");
     } else {
-      cityManager.setLastCity(newCity);
+      collectionManager.setLastElement(newELement);
       System.out.println("Город добавлен.");
     }
   }

@@ -1,24 +1,26 @@
 package commands;
 
-import classes.City;
 import interfaces.Argumentable;
-import managers.CityManager;
+import interfaces.Identifiable;
+import managers.CollectionManager;
+
+import java.lang.reflect.Method;
 
 /** Выводит элементы, значение поля name которых содержит заданную подстроку */
-public class FilterContainsNameCommand extends AbstractCommand implements Argumentable {
+public class FilterContainsNameCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Argumentable {
 
-  private final CityManager cityManager;
+  private final CollectionManager<T> collectionManager;
 
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public FilterContainsNameCommand(CityManager cityManager) {
+  public FilterContainsNameCommand(CollectionManager<T> collectionManager) {
     super(
         "filter_contains_name",
         "Выводит элементы, значение поля name которых содержит заданную подстроку.");
-    this.cityManager = cityManager;
+    this.collectionManager = collectionManager;
   }
 
   /**
@@ -28,18 +30,20 @@ public class FilterContainsNameCommand extends AbstractCommand implements Argume
    */
   @Override
   public void execute(String arg) {
-    String name = arg;
     int flag = 0;
-    for (City city : cityManager.getCities()) {
-      if (city.getName().contains(name)) {
+    for (T element : collectionManager.getElements()) {
+      Method getNameMethod = collectionManager.getObjectMethod(element, "getName");
+      String elementName = (String) collectionManager.invokeObjectMethod(getNameMethod, element);
+
+      if (elementName.contains(arg)) {
         flag++;
         if (flag == 1) {
-          System.out.println("Элементы с подстрокой " + name + ":");
+          System.out.println("Элементы с подстрокой " + arg + ":");
         }
-        System.out.println(city.toString());
+        System.out.println(element.toString());
       }
     }
-    if (flag == 0) System.out.println("Нет элементов с подстрокой " + name + ".");
+    if (flag == 0) System.out.println("Нет элементов с подстрокой " + arg + ".");
   }
 
   @Override

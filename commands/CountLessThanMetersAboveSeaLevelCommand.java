@@ -1,25 +1,31 @@
 package commands;
 
-import classes.City;
+import exceptions.ValidateException;
 import interfaces.Argumentable;
-import managers.CityManager;
+import interfaces.Identifiable;
+import managers.CollectionManager;
+import managers.ValidationManager;
+
+import java.lang.reflect.Method;
 
 /** Выводит количество элементов, значение поля metersAboveSeaLevel которых меньше заданного */
-public class CountLessThanMetersAboveSeaLevelCommand extends AbstractCommand
+public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
     implements Argumentable {
 
-  private final CityManager cityManager;
+  private final CollectionManager<T> collectionManager;
+  private final ValidationManager validationManager;
 
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public CountLessThanMetersAboveSeaLevelCommand(CityManager cityManager) {
+  public CountLessThanMetersAboveSeaLevelCommand(CollectionManager<T> collectionManager, ValidationManager validationManager) {
     super(
         "count_less_than_meters_above_sea_level",
         "Выводит количество элементов, значение поля metersAboveSeaLevel которых меньше заданного.");
-    this.cityManager = cityManager;
+    this.collectionManager = collectionManager;
+    this.validationManager = validationManager;
   }
 
   /**
@@ -29,18 +35,24 @@ public class CountLessThanMetersAboveSeaLevelCommand extends AbstractCommand
    */
   @Override
   public void execute(String arg) {
-    float metersAboveSeaLevel = 0;
+    float metersAboveSeaLevel;
     int counter = 0;
+
     try {
-      metersAboveSeaLevel = Float.parseFloat(arg);
-    } catch (NumberFormatException e) {
-      throw new NumberFormatException("Переданный аргумент " + arg + " не является числом.");
+      metersAboveSeaLevel = validationManager.validateFloat(arg, false);
+    } catch (ValidateException e) {
+      System.out.println(e.getMessage());
+      return;
     }
-    for (City city : cityManager.getCities()) {
-      if (city.getMetersAboveSeaLevel() < metersAboveSeaLevel) {
-        counter++;
-      }
+
+    for (T element : collectionManager.getElements()) {
+        Method getIdMethod = collectionManager.getObjectMethod(element, "getMetersAboveSeaLevel");
+        float meters = (float) collectionManager.invokeObjectMethod(getIdMethod, element);
+        if (meters < metersAboveSeaLevel) {
+          counter++;
+        }
     }
+
     System.out.println(
         "Количество элементов значение уровня воды, которых меньше "
             + metersAboveSeaLevel

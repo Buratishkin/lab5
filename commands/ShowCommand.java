@@ -1,25 +1,26 @@
 package commands;
 
-import classes.City;
 import java.util.Comparator;
 import java.util.TreeSet;
-import managers.CityManager;
+
+import interfaces.Identifiable;
+import managers.CollectionManager;
 
 /** Выводит в стандартный поток вывода все элементы коллекции в строковом представлении. */
-public class ShowCommand extends AbstractCommand {
+public class ShowCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
-  private final CityManager cityManager;
+  private final CollectionManager<T> collectionManager;
 
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public ShowCommand(CityManager cityManager) {
+  public ShowCommand(CollectionManager<T> collectionManager) {
     super(
         "show",
         "Выводит в стандартный поток вывода все элементы коллекции в строковом представлении.");
-    this.cityManager = cityManager;
+    this.collectionManager = collectionManager;
   }
 
   /**
@@ -32,13 +33,13 @@ public class ShowCommand extends AbstractCommand {
     System.out.println("Элементы коллекции:");
     int ind = 1;
     StringBuilder line = new StringBuilder();
-    TreeSet<City> cities = new TreeSet<>(Comparator.comparingInt(City::getId));
-    cities.addAll(cityManager.getCities());
-    for (City city : cities) {
-      if (ind == cities.size()) {
-        line.append(city.toString());
+    TreeSet<T> elements = new TreeSet<>(Comparator.comparingInt(T::getId));
+    elements.addAll(collectionManager.getElements());
+    for (T element : elements) {
+      if (ind == elements.size()) {
+        line.append(element.toString());
       } else {
-        line.append(city.toString() + "\n");
+        line.append(element.toString() + "\n");
         ind++;
       }
     }

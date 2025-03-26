@@ -1,18 +1,22 @@
 package commands;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.HashSet;
-import java.util.Scanner;
 import java.util.Set;
+
+import interfaces.Identifiable;
+import io.InputManager;
 import managers.CommandManager;
-import managers.FileManager;
-import service.CommandHandler;
+import io.FileManager;
 
 /** Считываются и исполняются скрипт из указанного файла */
-public class ExecuteScriptCommand extends AbstractCommand {
+public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
   private final CommandManager commandManager;
-  private Set<String> pastFiles = new HashSet<>();
-  private final CommandHandler commandHandler;
+  private final Set<String> pastFiles = new HashSet<>();
+  private final CommandHandler<T> commandHandler;
+  private final InputManager<T> inputManager;
 
   /**
    * Конструктор
@@ -20,20 +24,20 @@ public class ExecuteScriptCommand extends AbstractCommand {
    * @param commandManager менеджер коллекций
    * @param commandHandler обработчик команд
    */
-  public ExecuteScriptCommand(CommandManager commandManager, CommandHandler commandHandler) {
+  public ExecuteScriptCommand(CommandManager commandManager, CommandHandler<T> commandHandler, InputManager<T> inputManager) {
     super("execute_script", "Считываются и исполняются скрипт из указанного файла.");
     this.commandManager = commandManager;
     this.commandHandler = commandHandler;
+    this.inputManager = inputManager;
   }
 
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param fileName аргумент
    */
   @Override
-  public void execute(String arg) {
-    String fileName = arg;
+  public void execute(String fileName) {
     File file = new File(fileName);
 
     if (!FileManager.canRead(file)) {
@@ -42,15 +46,18 @@ public class ExecuteScriptCommand extends AbstractCommand {
 
     if (pastFiles.contains(file.getAbsolutePath())) {
       System.out.println(
-          "В скрипте обнаружена рекурсия. Повторно вызывается файл: " + file.getAbsolutePath());
+              "В скрипте обнаружена рекурсия. Повторно вызывается файл: " + file.getAbsolutePath());
       return;
     }
 
-    try (Scanner scanner = new Scanner(file)) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
       pastFiles.add(file.getAbsolutePath());
-      while (scanner.hasNext()) {
-        String line = scanner.nextLine();
-        if (line.isEmpty()) break;
+      String line;
+      while ((line = reader.readLine()) != null) {
+        if (line.isEmpty()) continue;
+        //надо как-то CityInputManager переделать, чтобы если заполнение класса из скрипта прекращалось, то мы заполняли его из терминала
+        //надо смотреть сколько не строк в reader, если в нем столько же, сколько надо для inputManager, то просто делаем inputObject,
+        //если меньше, то остальные заполняются с помощью ручного ввода, если больше, то остальные отбрасываются
         commandHandler.run(commandManager, line);
       }
       commandHandler.setMode(true);
@@ -58,6 +65,7 @@ public class ExecuteScriptCommand extends AbstractCommand {
       System.out.println("При выполнении скрипта возникла ошибка: " + e.getMessage());
     }
   }
+
 
   @Override
   public boolean isArgumentable() {

@@ -1,26 +1,37 @@
 package managers;
 
+import java.util.Scanner;
+
 /** Менеджер для взаимодействия с переменной окружения */
 public class EnvManager {
-  private static String env = System.getenv("collection");
+  private String env;
+  private final Scanner scanner;
 
-  /** Возвращает переменную окружения */
-  private static boolean isEnv() {
-    return env != null && !env.isEmpty();
+  public EnvManager(Scanner scanner){
+    this.scanner = scanner;
   }
 
-  public static void setEnv(String newEnv) {
-    env = System.getenv(newEnv);
+  public void setEnv(String newEnv, String message) {
+      env = System.getenv(newEnv);
+      if (env == null){
+        System.out.println(message);
+        manageEnv();
+      }
   }
 
-  public static void manageEnv() {
-    if (isEnv()) {
-      System.out.println("Задана стандартная переменная окружения: " + getEnv());
+  public void manageEnv() {
+    System.out.println("Хотите ли вы задать свою переменную-окружения? Введите true, если да; иначе введите что угодно");
+    boolean isCustomEnv = Boolean.parseBoolean(scanner.nextLine().trim());
+    if (isCustomEnv) {
+      System.out.println("Напишите имя переменной-окружения:");
+      String customEnv = scanner.nextLine().trim();
+      setEnv(customEnv, "Не обнаружена переменная-окружения с именем " + customEnv + ". Попробуйте ещё раз");
+      System.out.println("Задана переменная-окружения " + getEnv() + ".");
     } else {
-      System.out.println(
-          "Не обнаружена стандартная переменная окружения с именем collection\n"
-              + "Переменная окружения не задана. Выполнение программы невозможно.");
-      System.exit(0);
+      setEnv("collection",
+              "Не обнаружена стандартная переменная-окружения с именем collection\n"
+                      + "Вам нужно будет задать собственную переменную-окружения");
+      System.out.println("Задана стандартная переменную-окружения collection");
     }
   }
 
@@ -29,7 +40,7 @@ public class EnvManager {
    *
    * @return путь переменной окружения
    */
-  public static String getEnv() {
+  public String getEnv() {
     return env;
   }
 }

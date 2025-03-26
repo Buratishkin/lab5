@@ -1,20 +1,22 @@
 package service;
 
 import java.util.TreeSet;
-import managers.CityManager;
+
+import interfaces.Identifiable;
+import managers.CollectionManager;
 
 /** Класс для генерации id */
-public class IdCreator {
+public class IdCreator<T extends Comparable<T> & Identifiable> {
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public IdCreator(CityManager cityManager) {
-    this.cityManager = cityManager;
+  public IdCreator(CollectionManager<T> collectionManager) {
+    this.collectionManager = collectionManager;
   }
 
-  private final CityManager cityManager;
+  private final CollectionManager<T> collectionManager;
   private static final TreeSet<Integer> freeId = new TreeSet<>();
 
   /**
@@ -24,7 +26,7 @@ public class IdCreator {
    */
   public int getId() {
     if (freeId.isEmpty()) {
-      return cityManager.getCitiesId().getLast() + 1;
+      return collectionManager.getObjectsId().getLast() + 1;
     } else {
       int id = freeId.getFirst();
       freeId.remove(id);
@@ -43,16 +45,14 @@ public class IdCreator {
 
   /**
    * Добавляет в массив свободные id
-   *
-   * @param cityManager менеджер коллекций
    */
-  public void addFreeId(CityManager cityManager) {
+  public void addFreeId() {
     try {
-      for (int i = 1; i < cityManager.getCitiesId().getLast(); i++) {
-        if (!cityManager.getCitiesId().contains(i)) freeId.add(i);
+      for (int i = 1; i < collectionManager.getObjectsId().getLast(); i++) {
+        if (!collectionManager.getObjectsId().contains(i)) freeId.add(i);
       }
     } catch (Exception e) {
-      System.out.println("Коллекция пуста.");
+      System.out.println("Коллекция пуста");
     }
   }
 

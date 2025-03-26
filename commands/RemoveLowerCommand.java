@@ -1,23 +1,30 @@
 package commands;
 
-import classes.City;
 import exceptions.DuplicateElementException;
 import interfaces.Elementable;
-import managers.CityManager;
+import interfaces.Identifiable;
+import managers.CollectionManager;
+import managers.CommandManager;
 
 /** Удаляет из коллекции все элементы, меньшие, чем заданный */
-public class RemoveLowerCommand extends AbstractCommand implements Elementable {
+public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Elementable {
 
-  private final CityManager cityManager;
+  private final CollectionManager<T> collectionManager;
+  private final CommandManager commandManager;
+  private boolean consoleMode = true;
 
+  public void setConsoleMode(boolean consoleMode) {
+    this.consoleMode = consoleMode;
+  }
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public RemoveLowerCommand(CityManager cityManager) {
+  public RemoveLowerCommand(CollectionManager<T> collectionManager, CommandManager commandManager) {
     super("remove_lower", "Удаляет из коллекции все элементы, меньшие, чем заданный.");
-    this.cityManager = cityManager;
+    this.collectionManager = collectionManager;
+    this.commandManager = commandManager;
   }
 
   /**
@@ -27,24 +34,24 @@ public class RemoveLowerCommand extends AbstractCommand implements Elementable {
    */
   @Override
   public void execute(String arg) {
-    AddCommand addCommand = new AddCommand(cityManager);
-    RemoveByIdCommand removeByIdCommand = new RemoveByIdCommand(cityManager);
+    AddCommand<T> addCommand = (AddCommand<T>) commandManager.getCommand("add");
+    RemoveByIdCommand<T> removeByIdCommand = (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
 
-    int oldSize = cityManager.citySize();
+    int oldSize = collectionManager.objectsSize();
     try {
       addCommand.execute(arg);
     } catch (DuplicateElementException e) {
       System.out.println(e.getMessage());
     }
-    City newCity = cityManager.getLastCity();
-    for (City city : cityManager.getCities()) {
-      if (newCity.compareTo(city) == 1) {
-        removeByIdCommand.execute(Integer.toString(cityManager.getId(city)));
+    T newElement = collectionManager.getLastElement();
+    for (T element : collectionManager.getElements()) {
+      if (newElement.compareTo(element) == 1) {
+        removeByIdCommand.execute(Integer.toString(collectionManager.getId(element)));
       }
     }
     System.out.println(
-        "Количество элементов удаленных командой remove_lower: "
-            + (oldSize - cityManager.citySize() + 1));
+            "Количество элементов удаленных командой remove_lower: "
+                    + (oldSize - collectionManager.objectsSize() + 1));
   }
 
   @Override

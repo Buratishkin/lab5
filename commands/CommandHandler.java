@@ -1,27 +1,27 @@
-package service;
+package commands;
 
-import commands.AbstractCommand;
-import commands.HistoryCommand;
 import exceptions.CommandException;
 import java.time.LocalDateTime;
 import java.util.Scanner;
-import managers.CityManager;
+
+import interfaces.Identifiable;
+import managers.CollectionManager;
 import managers.CommandManager;
 
 /** Класс для работы с командами */
-public class CommandHandler {
-  private boolean mode = false;
+public class CommandHandler<T extends Comparable<T> & Identifiable> {
+  private boolean consoleMode = true;
   private static final Scanner scanner = new Scanner(System.in);
-  private HistoryCommand historyCommand = new HistoryCommand();
-  private final CityManager cityManager;
+  private final HistoryCommand historyCommand = new HistoryCommand();
+  private final CollectionManager<T> collectionManager;
 
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public CommandHandler(CityManager cityManager) {
-    this.cityManager = cityManager;
+  public CommandHandler(CollectionManager<T> collectionManager) {
+    this.collectionManager = collectionManager;
   }
 
   /**
@@ -37,10 +37,10 @@ public class CommandHandler {
   /**
    * Ставит режим выполнения: false - пользовательский ввод, true - выполнение скрипта
    *
-   * @param mode мод
+   * @param consoleMode мод
    */
-  public void setMode(boolean mode) {
-    this.mode = mode;
+  public void setMode(boolean consoleMode) {
+    this.consoleMode = consoleMode;
   }
 
   /**
@@ -66,19 +66,20 @@ public class CommandHandler {
       if (commandManager.getCommands().containsKey(commandName)) {
         AbstractCommand currentCommand = commandManager.getCommands().get(commandName);
         historyCommand.addInHistory(commandName);
-        if (currentCommand.isElementable()) cityManager.setUpdateDateTime(LocalDateTime.now());
+        if (currentCommand.isElementable()) {
+          collectionManager.setUpdateDateTime(LocalDateTime.now());
+        }
+        if (commandName.contains("remove")) collectionManager.setUpdateDateTime(LocalDateTime.now());
         if (currentCommand.isArgumentable()) {
           if (parts.length < 2) throw new CommandException("Не передан аргумент для команды.");
           else currentCommand.execute(parts[1]);
         } else currentCommand.execute(parts[0]);
       } else {
         System.out.println(
-            "Такой команды не существует. Попробуйте ещё раз.\nЧтобы посмотреть список команд, напишите help.");
+            "Команды \"" + commandName + "\" не существует. Попробуйте ещё раз.\nЧтобы посмотреть список команд, напишите help.");
       }
     } catch (Exception e) {
       System.out.println(e.getMessage());
-    } finally {
-      if (mode) run(commandManager, "");
     }
   }
 }

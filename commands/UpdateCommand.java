@@ -2,23 +2,30 @@ package commands;
 
 import interfaces.Argumentable;
 import interfaces.Elementable;
-import managers.CityManager;
-import managers.InputManager;
+import interfaces.Identifiable;
+import io.InputManager;
+import managers.*;
 
 /** Обновляет значение элемента коллекции, id которого равен заданному. */
-public class UpdateCommand extends AbstractCommand implements Argumentable, Elementable {
+public class UpdateCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Argumentable, Elementable {
 
-  private final InputManager inputManager = new InputManager();
-  private final CityManager cityManager;
+  private final InputManager<T> inputManager;
+  private final CollectionManager<T> collectionManager;
+  private boolean consoleMode = true;
+
+  public void setConsoleRead(boolean consoleMode) {
+    this.consoleMode = consoleMode;
+  }
 
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public UpdateCommand(CityManager cityManager) {
+  public UpdateCommand(CollectionManager<T> collectionManager, InputManager<T> inputManager) {
     super("update", "Обновляет значение элемента коллекции, id которого равен заданному.");
-    this.cityManager = cityManager;
+    this.collectionManager = collectionManager;
+    this.inputManager = inputManager;
   }
 
   /**
@@ -28,20 +35,20 @@ public class UpdateCommand extends AbstractCommand implements Argumentable, Elem
    */
   @Override
   public void execute(String arg) {
-    int id = -1;
+    int id;
     try {
       id = Integer.parseInt(arg);
     } catch (NumberFormatException e) {
       throw new NumberFormatException("Переданный аргумент " + arg + " не является числом.");
     }
-    if (!cityManager.contains(id)) {
+    if (!collectionManager.contains(id)) {
       throw new IllegalArgumentException(
           "В коллекции нет объекта с индексом "
               + id
               + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
     } else {
-      cityManager.removeCity(cityManager.getById(id));
-      cityManager.addCity(inputManager.createCity(id));
+      collectionManager.removeElement(collectionManager.getById(id));
+      collectionManager.addElement(inputManager.inputObject(true));
       System.out.println("Город обновлён.");
     }
   }

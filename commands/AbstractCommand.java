@@ -1,7 +1,6 @@
 package commands;
 
 import interfaces.Argumentable;
-import interfaces.Command;
 import interfaces.Elementable;
 
 /** Абстрактный класс для всех команд. */

@@ -1,24 +1,25 @@
 package commands;
 
 import interfaces.Argumentable;
-import managers.CityManager;
+import interfaces.Identifiable;
+import managers.CollectionManager;
 import service.IdCreator;
 
 /** Удаляет элемент из коллекции по его id */
-public class RemoveByIdCommand extends AbstractCommand implements Argumentable {
+public class RemoveByIdCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Argumentable {
 
-  private final CityManager cityManager;
-  private final IdCreator idCreator;
+  private final CollectionManager<T> collectionManager;
+  private final IdCreator<T> idCreator;
 
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public RemoveByIdCommand(CityManager cityManager) {
+  public RemoveByIdCommand(CollectionManager<T> collectionManager, IdCreator<T> idCreator) {
     super("remove_by_id", "Удаляет элемент из коллекции по его id.");
-    this.cityManager = cityManager;
-    idCreator = new IdCreator(cityManager);
+    this.collectionManager = collectionManager;
+    this.idCreator = idCreator;
   }
 
   /**
@@ -28,24 +29,24 @@ public class RemoveByIdCommand extends AbstractCommand implements Argumentable {
    */
   @Override
   public void execute(String arg) {
-    int id = -1;
+    int id;
     try {
       id = Integer.parseInt(arg);
     } catch (NumberFormatException e) {
       throw new NumberFormatException("Переданный аргумент " + arg + " не является числом.");
     }
-    if (!cityManager.contains(id)) {
+    if (!collectionManager.contains(id)) {
       throw new IllegalArgumentException("В коллекции нет объекта с индексом " + id);
     } else {
       idCreator.delId(id);
-      cityManager.removeCity(cityManager.getById(id));
+      collectionManager.removeElement(collectionManager.getById(id));
       System.out.println("Город удален.");
     }
   }
 
   @Override
   public boolean isArgumentable() {
-    return true;
+    return false;
   }
 
   @Override

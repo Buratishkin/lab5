@@ -6,7 +6,7 @@ import java.util.HashMap;
 /** Менеджер для хранения всех команд */
 public class CommandManager {
   /** Словарь для хранения команд */
-  private HashMap<String, AbstractCommand> commands = new HashMap<>();
+  private final HashMap<String, AbstractCommand> commands = new HashMap<>();
 
   /**
    * Добавление команды в словарь
@@ -25,5 +25,9 @@ public class CommandManager {
    */
   public HashMap<String, AbstractCommand> getCommands() {
     return commands;
+  }
+
+  public AbstractCommand getCommand(String name){
+    return commands.get(name);
   }
 }

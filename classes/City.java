@@ -3,11 +3,13 @@ package classes;
 import enums.Climate;
 import enums.Government;
 import enums.StandardOfLiving;
+import interfaces.Identifiable;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
 /** Класс города */
-public class City implements Comparable<City> {
+public class City implements Comparable<City>, Identifiable {
   private int id; // Значение поля должно быть больше 0, Значение этого поля должно быть уникальным,
   // Значение этого поля должно генерироваться автоматически
   private String name; // Поле не может быть null, Строка не может быть пустой
@@ -107,6 +109,50 @@ public class City implements Comparable<City> {
     return governor;
   }
 
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setCoordinates(Coordinates coordinates) {
+    this.coordinates = coordinates;
+  }
+
+  public void setCreationDate(LocalDate creationDate) {
+    this.creationDate = creationDate;
+  }
+
+  public void setArea(Float area) {
+    this.area = area;
+  }
+
+  public void setPopulation(Integer population) {
+    this.population = population;
+  }
+
+  public void setMetersAboveSeaLevel(float metersAboveSeaLevel) {
+    this.metersAboveSeaLevel = metersAboveSeaLevel;
+  }
+
+  public void setClimate(Climate climate) {
+    this.climate = climate;
+  }
+
+  public void setGovernment(Government government) {
+    this.government = government;
+  }
+
+  public void setStandardOfLiving(StandardOfLiving standardOfLiving) {
+    this.standardOfLiving = standardOfLiving;
+  }
+
+  public void setGovernor(Human governor) {
+    this.governor = governor;
+  }
+
   @Override
   public int compareTo(City other) {
     int result = Integer.compare(this.population, other.population);
@@ -119,7 +165,7 @@ public class City implements Comparable<City> {
 
   public String toString() {
     return String.format(
-        "id = %s, название_города = %s, координаты = %s, дата_создания = %s, площадь = %s, численность = %s, уровень_над_уровнем_моря = %s, климат = %s, правительство = %s, уровень_жизни = %s, мэр = %s ",
+        "id = %s, название_города = %s, координаты = %s, дата_создания = %s, площадь = %s, численность = %s, высота_над_уровнем_моря = %s, климат = %s, правительство = %s, уровень_жизни = %s, мэр = %s ",
         id,
         name,
         coordinates.toString(),
@@ -146,4 +192,6 @@ public class City implements Comparable<City> {
   public int hashCode() {
     return Objects.hash(population, coordinates);
   }
+
+
 }

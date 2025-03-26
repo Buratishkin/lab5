@@ -1,4 +1,4 @@
-package interfaces;
+package commands;
 
 /** Интерфейс для выполнения команд */
 public interface Command {

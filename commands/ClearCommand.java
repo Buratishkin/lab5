@@ -1,23 +1,24 @@
 package commands;
 
-import managers.CityManager;
+import interfaces.Identifiable;
+import managers.CollectionManager;
 import service.IdCreator;
 
 /** Очищает коллекцию */
-public class ClearCommand extends AbstractCommand {
+public class ClearCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
-  private final CityManager cityManager;
-  private final IdCreator idCreator;
+  private final CollectionManager<T> collectionManager;
+  private final IdCreator<T> idCreator;
 
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public ClearCommand(CityManager cityManager) {
+  public ClearCommand(CollectionManager<T> collectionManager, IdCreator<T> idCreator) {
     super("clear", "Очищает коллекцию.");
-    this.cityManager = cityManager;
-    idCreator = new IdCreator(cityManager);
+    this.collectionManager = collectionManager;
+    this.idCreator = idCreator;
   }
 
   /**
@@ -27,7 +28,7 @@ public class ClearCommand extends AbstractCommand {
    */
   @Override
   public void execute(String arg) {
-    cityManager.clear();
+    collectionManager.clearCollection();
     idCreator.clearId();
     System.out.println("Коллекция очищена");
   }

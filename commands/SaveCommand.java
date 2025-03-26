@@ -1,22 +1,26 @@
 package commands;
 
-import managers.CityManager;
-import managers.EnvManager;
-import managers.FileManager;
+import interfaces.Identifiable;
+import io.Writer;
+import managers.CollectionManager;
+import io.FileManager;
 
 /** Сохраняет коллекцию в файл */
-public class SaveCommand extends AbstractCommand {
+public class SaveCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
-  private final CityManager cityManager;
-
+  private final CollectionManager<T> collectionManager;
+  private final Writer writer;
+  private final FileManager<T> fileManager;
   /**
    * Конструктор
    *
-   * @param cityManager менеджер коллекций
+   * @param collectionManager менеджер коллекций
    */
-  public SaveCommand(CityManager cityManager) {
+  public SaveCommand(CollectionManager<T> collectionManager, FileManager<T> fileManager, Writer writer) {
     super("save", "Сохраняет коллекцию в файл.");
-    this.cityManager = cityManager;
+    this.collectionManager = collectionManager;
+    this.fileManager = fileManager;
+    this.writer = writer;
   }
 
   /**
@@ -29,9 +33,8 @@ public class SaveCommand extends AbstractCommand {
     if (arg.isEmpty()) {
       throw new IllegalArgumentException("Не передано имя файла.");
     }
-    FileManager fileManager = new FileManager(EnvManager.getEnv(), cityManager);
     try {
-      fileManager.saveCollection();
+      writer.writeToFile(fileManager.convertCollectionToList(collectionManager.getElements()));
     } catch (Exception e) {
       System.out.println("Возникла ошибка: " + e.getMessage());
     }
