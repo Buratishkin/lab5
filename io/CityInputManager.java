@@ -4,6 +4,7 @@ import classes.City;
 import enums.Climate;
 import enums.Government;
 import enums.StandardOfLiving;
+import exceptions.ValidateException;
 import managers.ValidationManager;
 import service.DateCreator;
 import service.IdCreator;
@@ -12,11 +13,18 @@ public class CityInputManager implements InputManager<City> {
     private final CityDataReader cityDataReader;
     private final IdCreator<City> idCreator;
     private final ValidationManager validationManager;
+    private int customId = 0;
 
     public CityInputManager(CityDataReader cityDataReader, IdCreator<City> idCreator, ValidationManager validationManager){
         this.cityDataReader = cityDataReader;
         this.idCreator = idCreator;
         this.validationManager = validationManager;
+    }
+
+    @Override
+    public void setCustomId(int id){
+        if (id > 0) this.customId = id;
+        else throw new ValidateException("id должен быть натуральным");
     }
 
     public CityDataReader getDataReader() {
@@ -28,8 +36,8 @@ public class CityInputManager implements InputManager<City> {
         boolean scriptMode = cityDataReader.getScriptMode();
         cityDataReader.setScriptMode(scriptMode);
 
-        return new City(
-                idCreator.getId(),
+        City city = new City(
+                (customId == 0) ? idCreator.getId() : customId,
                 cityDataReader.readAnything(
                         "название города: ",
                         "Введено неправильное значение для name. Попробуйте ещё раз",
@@ -72,5 +80,7 @@ public class CityInputManager implements InputManager<City> {
                 ),
                 cityDataReader.readHuman()
         );
+        customId = 0;
+        return city;
     }
 }

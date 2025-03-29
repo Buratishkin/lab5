@@ -1,10 +1,7 @@
 package commands;
 
-import interfaces.Argumentable;
-import interfaces.Elementable;
-
 /** Абстрактный класс для всех команд. */
-public abstract class AbstractCommand implements Command, Elementable, Argumentable {
+public abstract class AbstractCommand implements Command {
   private final String name;
   private final String description;
 
@@ -36,6 +33,10 @@ public abstract class AbstractCommand implements Command, Elementable, Argumenta
   public String getDescription() {
     return description;
   }
+
+  public abstract boolean isArgumentable();
+
+  public abstract boolean isElementable();
 
   @Override
   public String toString() {

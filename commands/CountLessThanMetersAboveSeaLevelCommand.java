@@ -1,7 +1,6 @@
 package commands;
 
 import exceptions.ValidateException;
-import interfaces.Argumentable;
 import interfaces.Identifiable;
 import managers.CollectionManager;
 import managers.ValidationManager;
@@ -9,8 +8,7 @@ import managers.ValidationManager;
 import java.lang.reflect.Method;
 
 /** Выводит количество элементов, значение поля metersAboveSeaLevel которых меньше заданного */
-public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
-    implements Argumentable {
+public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
   private final ValidationManager validationManager;

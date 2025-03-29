@@ -1,7 +1,5 @@
 package commands;
 
-import interfaces.Argumentable;
-import interfaces.Elementable;
 import interfaces.Identifiable;
 import interfaces.ScriptCommand;
 import io.InputManager;
@@ -50,6 +48,7 @@ public class UpdateCommand<T extends Comparable<T> & Identifiable> extends Abstr
               + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
     } else {
       collectionManager.removeElement(collectionManager.getById(id));
+      inputManager.setCustomId(id);
       collectionManager.addElement(inputManager.inputObject());
       System.out.println("Город обновлён.");
     }

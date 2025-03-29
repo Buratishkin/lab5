@@ -1,6 +1,5 @@
 package commands;
 
-import interfaces.Argumentable;
 import interfaces.Identifiable;
 import managers.CollectionManager;
 

@@ -1,7 +1,6 @@
 package commands;
 
 import exceptions.DuplicateElementException;
-import interfaces.Elementable;
 import interfaces.Identifiable;
 import interfaces.ScriptCommand;
 import managers.CollectionManager;
