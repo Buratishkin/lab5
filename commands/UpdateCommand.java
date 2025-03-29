@@ -3,18 +3,20 @@ package commands;
 import interfaces.Argumentable;
 import interfaces.Elementable;
 import interfaces.Identifiable;
+import interfaces.ScriptCommand;
 import io.InputManager;
 import managers.*;
 
 /** Обновляет значение элемента коллекции, id которого равен заданному. */
-public class UpdateCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Argumentable, Elementable {
+public class UpdateCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements ScriptCommand {
 
   private final InputManager<T> inputManager;
   private final CollectionManager<T> collectionManager;
-  private boolean consoleMode = true;
+  private boolean scriptMode = false;
 
-  public void setConsoleRead(boolean consoleMode) {
-    this.consoleMode = consoleMode;
+  @Override
+  public void setScriptMode(boolean scriptMode){
+    this.scriptMode = scriptMode;
   }
 
   /**
@@ -48,7 +50,7 @@ public class UpdateCommand<T extends Comparable<T> & Identifiable> extends Abstr
               + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
     } else {
       collectionManager.removeElement(collectionManager.getById(id));
-      collectionManager.addElement(inputManager.inputObject(true));
+      collectionManager.addElement(inputManager.inputObject());
       System.out.println("Город обновлён.");
     }
   }

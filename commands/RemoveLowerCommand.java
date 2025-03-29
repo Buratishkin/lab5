@@ -3,19 +3,22 @@ package commands;
 import exceptions.DuplicateElementException;
 import interfaces.Elementable;
 import interfaces.Identifiable;
+import interfaces.ScriptCommand;
 import managers.CollectionManager;
 import managers.CommandManager;
 
 /** Удаляет из коллекции все элементы, меньшие, чем заданный */
-public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Elementable {
+public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements ScriptCommand {
 
   private final CollectionManager<T> collectionManager;
   private final CommandManager commandManager;
-  private boolean consoleMode = true;
+  private boolean scriptMode = false;
 
-  public void setConsoleMode(boolean consoleMode) {
-    this.consoleMode = consoleMode;
+  @Override
+  public void setScriptMode(boolean scriptMode){
+    this.scriptMode = scriptMode;
   }
+
   /**
    * Конструктор
    *
@@ -39,6 +42,7 @@ public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends 
 
     int oldSize = collectionManager.objectsSize();
     try {
+      addCommand.setScriptMode(scriptMode);
       addCommand.execute(arg);
     } catch (DuplicateElementException e) {
       System.out.println(e.getMessage());

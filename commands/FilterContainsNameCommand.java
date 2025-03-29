@@ -7,7 +7,7 @@ import managers.CollectionManager;
 import java.lang.reflect.Method;
 
 /** Выводит элементы, значение поля name которых содержит заданную подстроку */
-public class FilterContainsNameCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Argumentable {
+public class FilterContainsNameCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
 

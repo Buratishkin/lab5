@@ -1,21 +1,22 @@
 package commands;
 
 import exceptions.DuplicateElementException;
-import interfaces.Elementable;
 import interfaces.Identifiable;
-import managers.CollectionManager;
+import interfaces.ScriptCommand;
 import io.InputManager;
+import managers.CollectionManager;
 import service.IdCreator;
 
 /** Добавляет новый элемент в коллекцию */
-public class AddCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Elementable {
+public class AddCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements ScriptCommand {
   private final CollectionManager<T> collectionManager;
   private final IdCreator<T> idCreator;
   private final InputManager<T> inputManager;
-  private boolean consoleMode = true;
-              
-  public void setConsoleMode(boolean consoleMode){
-    this.consoleMode = consoleMode;
+  private boolean scriptMode = false;
+
+  @Override
+  public void setScriptMode(boolean scriptMode){
+    this.scriptMode = scriptMode;
   }
 
   /**
@@ -23,7 +24,7 @@ public class AddCommand<T extends Comparable<T> & Identifiable> extends Abstract
    *
    * @param collectionManager коллекция городов
    */
-  public AddCommand(CollectionManager<T> collectionManager, IdCreator<T> idCreator, InputManager<T> inputManager, boolean isConsoleRead) {
+  public AddCommand(CollectionManager<T> collectionManager, IdCreator<T> idCreator, InputManager<T> inputManager) {
     super("add", "Добавляет новый элемент в коллекцию.");
     this.collectionManager = collectionManager;
     this.idCreator = idCreator;
@@ -37,7 +38,8 @@ public class AddCommand<T extends Comparable<T> & Identifiable> extends Abstract
    */
   @Override
   public void execute(String arg) {
-    T newELement = inputManager.inputObject(consoleMode);
+    inputManager.getDataReader().setScriptMode(scriptMode);
+    T newELement = inputManager.inputObject();
     int oldSize = collectionManager.objectsSize();
     collectionManager.addElement(newELement);
     if (oldSize == collectionManager.objectsSize()) {

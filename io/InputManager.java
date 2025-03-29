@@ -1,5 +1,9 @@
 package io;
 
-public interface InputManager<T> {
-    T inputObject(boolean isConsoleRead);
+import interfaces.Identifiable;
+
+public interface InputManager<T extends Comparable<T> & Identifiable> {
+    T inputObject();
+
+    DataReader getDataReader();
 }

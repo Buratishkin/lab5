@@ -6,7 +6,7 @@ import managers.CollectionManager;
 import service.IdCreator;
 
 /** Удаляет элемент из коллекции по его id */
-public class RemoveByIdCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements Argumentable {
+public class RemoveByIdCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
   private final IdCreator<T> idCreator;

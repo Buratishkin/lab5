@@ -7,17 +7,11 @@ import enums.StandardOfLiving;
 import managers.ValidationManager;
 import service.DateCreator;
 import service.IdCreator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 
 public class CityInputManager implements InputManager<City> {
     private final CityDataReader cityDataReader;
     private final IdCreator<City> idCreator;
     private final ValidationManager validationManager;
-    private final List<String> fields = new ArrayList<>(Arrays.asList("id", "name", "coordinateX", "coordinateY", "creationDate", "area",
-            "population", "metersAboveSeaLevel", "climate" ,"government", "standardOfLiving", "humanName", "humanAge"));
 
     public CityInputManager(CityDataReader cityDataReader, IdCreator<City> idCreator, ValidationManager validationManager){
         this.cityDataReader = cityDataReader;
@@ -25,62 +19,58 @@ public class CityInputManager implements InputManager<City> {
         this.validationManager = validationManager;
     }
 
-    public List<String> getFields() {
-        return fields;
+    public CityDataReader getDataReader() {
+        return cityDataReader;
     }
 
     @Override
-    public City inputObject(boolean isConsoleRead) {
+    public City inputObject() {
+        boolean scriptMode = cityDataReader.getScriptMode();
+        cityDataReader.setScriptMode(scriptMode);
+
         return new City(
                 idCreator.getId(),
                 cityDataReader.readAnything(
-                        "Введите название города:",
+                        "название города: ",
                         "Введено неправильное значение для name. Попробуйте ещё раз",
-                        input -> validationManager.validateString(input, false),
-                        isConsoleRead
+                        input -> validationManager.validateString(input, false)
                 ),
-                cityDataReader.readCoordinates(isConsoleRead),
+                cityDataReader.readCoordinates(),
                 DateCreator.getDate(),
                 cityDataReader.readAnything(
-                        "Введите площадь(число с плавающей точкой, больше 0):",
+                        "площадь(число с плавающей точкой, больше 0): ",
                         "Введено неправильное значение для area. Попробуйте ещё раз",
-                        input -> validationManager.validateCondition(validationManager.validateFloat(input, false), 1, 0.0f),
-                        isConsoleRead
+                        input -> validationManager.validateCondition(validationManager.validateFloat(input, false), 1, 0.0f)
                 ),
                 cityDataReader.readAnything(
-                        "Введите численность(целое число, больше 0):",
+                        "численность(целое число, больше 0): ",
                         "Введено неправильное значение population. Попробуйте ещё раз",
-                        input -> validationManager.validateCondition(validationManager.validateInt(input, false), 1, 0),
-                        isConsoleRead
+                        input -> validationManager.validateCondition(validationManager.validateInt(input, false), 1, 0)
                 ),
                 cityDataReader.readAnything(
-                        "Введите высоту над уровнем моря:",
+                        "высоту над уровнем моря: ",
                         "Введено неправильное значение для metersAboveSeaLevel. Попробуйте ещё раз",
-                        input -> validationManager.validateFloat(input, true),
-                        isConsoleRead
+                        input -> validationManager.validateFloat(input, true)
                 ),
                 cityDataReader.readAnything(
-                        "Выберите один из климатов: " + Climate.valuesToString() +
-                                "\nИндекс может быть от 1 до " + Climate.values().length,
+                        "Climate: " + Climate.valuesToString() +
+                                "\nИндекс может быть от 1 до " + Climate.values().length + " ",
                         "Введено неправильное значение для Climate. Попробуйте ещё раз",
-                        input -> validationManager.validateEnum(Climate.class, input),
-                        isConsoleRead
+                        input -> validationManager.validateEnum(Climate.class, input)
                 ),
                 cityDataReader.readAnything(
-                        "Выберите одно из правительств: " + Government.valuesToString() +
-                                "\nИндекс может быть от 1 до " + Government.values().length,
+                        "Government: " + Government.valuesToString() +
+                                "\nИндекс может быть от 1 до " + Government.values().length + " ",
                         "Введено неправильное значение для Government. Попробуйте ещё раз",
-                        input -> validationManager.validateEnum(Government.class, input),
-                        isConsoleRead
+                        input -> validationManager.validateEnum(Government.class, input)
                 ),
                 cityDataReader.readAnything(
-                        "Выберите один из уровней жизни: " + StandardOfLiving.valuesToString() +
-                                "\nИндекс может быть от 1 до " + StandardOfLiving.values().length,
+                        "StandardOfLiving: " + StandardOfLiving.valuesToString() +
+                                "\nИндекс может быть от 1 до " + StandardOfLiving.values().length + " ",
                         "Введено неправильное значение для StandardOfLiving. Попробуйте ещё раз",
-                        input -> validationManager.validateEnum(StandardOfLiving.class, input),
-                        isConsoleRead
+                        input -> validationManager.validateEnum(StandardOfLiving.class, input)
                 ),
-                cityDataReader.readHuman(isConsoleRead)
+                cityDataReader.readHuman()
         );
     }
 }

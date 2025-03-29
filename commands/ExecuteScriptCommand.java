@@ -1,13 +1,14 @@
 package commands;
-
-import java.io.BufferedReader;
+  
 import java.io.File;
-import java.io.FileReader;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
 
 import interfaces.Identifiable;
+import io.DataReader;
 import io.InputManager;
+import main.Main;
 import managers.CommandManager;
 import io.FileManager;
 
@@ -16,7 +17,9 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
   private final CommandManager commandManager;
   private final Set<String> pastFiles = new HashSet<>();
   private final CommandHandler<T> commandHandler;
-  private final InputManager<T> inputManager;
+  private static String lostLine = "";
+
+
 
   /**
    * Конструктор
@@ -24,11 +27,10 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
    * @param commandManager менеджер коллекций
    * @param commandHandler обработчик команд
    */
-  public ExecuteScriptCommand(CommandManager commandManager, CommandHandler<T> commandHandler, InputManager<T> inputManager) {
+  public ExecuteScriptCommand(CommandManager commandManager, CommandHandler<T> commandHandler) {
     super("execute_script", "Считываются и исполняются скрипт из указанного файла.");
     this.commandManager = commandManager;
     this.commandHandler = commandHandler;
-    this.inputManager = inputManager;
   }
 
   /**
@@ -50,22 +52,40 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
       return;
     }
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+    try (Scanner scanner = new Scanner(file)) {
+      getHelp();
       pastFiles.add(file.getAbsolutePath());
       String line;
-      while ((line = reader.readLine()) != null) {
+      commandHandler.setMode(true);
+      while (scanner.hasNext() || !lostLine.isEmpty()) {
+        if (!lostLine.isEmpty()) {
+          line = lostLine;
+          lostLine = "";
+        }
+        else line = scanner.nextLine().trim();
         if (line.isEmpty()) continue;
-        //надо как-то CityInputManager переделать, чтобы если заполнение класса из скрипта прекращалось, то мы заполняли его из терминала
-        //надо смотреть сколько не строк в reader, если в нем столько же, сколько надо для inputManager, то просто делаем inputObject,
-        //если меньше, то остальные заполняются с помощью ручного ввода, если больше, то остальные отбрасываются
+        commandHandler.setScanner(scanner);
         commandHandler.run(commandManager, line);
       }
-      commandHandler.setMode(true);
+      commandHandler.setMode(false);
+      commandHandler.setScanner(Main.getScanner());
     } catch (Exception e) {
       System.out.println("При выполнении скрипта возникла ошибка: " + e.getMessage());
     }
   }
 
+  public static void setLostLine(String lostLine) {
+    ExecuteScriptCommand.lostLine = lostLine;
+  }
+
+  public void getHelp(){
+    System.out.println("Структура скрипта:" +
+            "\n    Каждая команда начинается с новой строки. Для получения списка существующих команд напишите help." +
+            "\n    Если команда добавляет элемент в коллекцию, то перед значениями полей должно быть 4 пробела." +
+            "\n    Если значение полей меньше количества, нужных для создания класса, то недостающие поля нужно будет вводить вручную." +
+            "\n    Если больше - лишние поля просто отбрасываются." +
+            "\nЕсли возникает рекурсия - выполнение скрипта прекращается.");
+  }
 
   @Override
   public boolean isArgumentable() {

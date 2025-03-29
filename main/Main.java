@@ -13,8 +13,10 @@ import service.IdCreator;
 import java.util.Scanner;
 
 public class Main {
+  public static Scanner scanner = new Scanner(System.in);
+
   public static void main(String[] args) {
-    Scanner scanner = new Scanner(System.in);
+
     EnvManager envManager = new EnvManager(scanner);
     envManager.manageEnv();
 
@@ -37,17 +39,17 @@ public class Main {
 
     InputManager<City> inputManager = new CityInputManager(dataReader, idCreator, validationManager);
 
-    CommandHandler<City> commandHandler = new CommandHandler<>(collectionManager);
+    CommandHandler<City> commandHandler = new CommandHandler<>(collectionManager, scanner);
     CommandManager commandManager = new CommandManager();
 
-    commandManager.addInCommands("add", new AddCommand<>(collectionManager, idCreator, inputManager, true));
+    commandManager.addInCommands("add", new AddCommand<>(collectionManager, idCreator, inputManager));
     commandManager.addInCommands("clear", new ClearCommand<>(collectionManager, idCreator));
     commandManager.addInCommands(
         "count_less_than_meters_above_sea_level",
         new CountLessThanMetersAboveSeaLevelCommand<>(collectionManager, validationManager));
     commandManager.addInCommands("exit", new ExitCommand());
     commandManager.addInCommands(
-        "execute_script", new ExecuteScriptCommand<>(commandManager, commandHandler, inputManager));
+        "execute_script", new ExecuteScriptCommand<>(commandManager, commandHandler));
     commandManager.addInCommands(
         "filter_contains_name", new FilterContainsNameCommand<>(collectionManager));
     commandManager.addInCommands(
@@ -65,5 +67,9 @@ public class Main {
     while (true) {
       commandHandler.run(commandManager, "");
     }
+  }
+
+  public static Scanner getScanner(){
+    return scanner;
   }
 }
