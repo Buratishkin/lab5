@@ -8,14 +8,15 @@ import managers.CollectionManager;
 import service.IdCreator;
 
 /** Добавляет новый элемент в коллекцию */
-public class AddCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements ScriptCommand {
+public class AddCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
+    implements ScriptCommand {
   private final CollectionManager<T> collectionManager;
   private final IdCreator<T> idCreator;
   private final InputManager<T> inputManager;
   private boolean scriptMode = false;
 
   @Override
-  public void setScriptMode(boolean scriptMode){
+  public void setScriptMode(boolean scriptMode) {
     this.scriptMode = scriptMode;
   }
 
@@ -24,7 +25,10 @@ public class AddCommand<T extends Comparable<T> & Identifiable> extends Abstract
    *
    * @param collectionManager коллекция городов
    */
-  public AddCommand(CollectionManager<T> collectionManager, IdCreator<T> idCreator, InputManager<T> inputManager) {
+  public AddCommand(
+      CollectionManager<T> collectionManager,
+      IdCreator<T> idCreator,
+      InputManager<T> inputManager) {
     super("add", "Добавляет новый элемент в коллекцию.");
     this.collectionManager = collectionManager;
     this.idCreator = idCreator;

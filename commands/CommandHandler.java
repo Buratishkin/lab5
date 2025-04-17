@@ -1,20 +1,21 @@
 package commands;
 
 import exceptions.CommandException;
-import java.time.LocalDateTime;
-import java.util.Scanner;
-
 import interfaces.Identifiable;
 import interfaces.ScriptCommand;
 import io.DataReader;
+import java.time.LocalDateTime;
+import java.util.Scanner;
+import main.Main;
 import managers.CollectionManager;
 import managers.CommandManager;
 
 /** Класс для работы с командами */
 public class CommandHandler<T extends Comparable<T> & Identifiable> {
   private boolean scriptMode = false;
+  private final CommandManager commandManager;
   private Scanner scanner;
-  private final Scanner defaultScanner;
+  private Scanner defaultScanner;
   private final HistoryCommand historyCommand = new HistoryCommand();
   private final CollectionManager<T> collectionManager;
 
@@ -23,10 +24,16 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
    *
    * @param collectionManager менеджер коллекций
    */
-  public CommandHandler(CollectionManager<T> collectionManager, Scanner scanner) {
+  public CommandHandler(
+      CollectionManager<T> collectionManager, Scanner scanner, CommandManager commandManager) {
     this.collectionManager = collectionManager;
     defaultScanner = scanner;
     this.scanner = scanner;
+    this.commandManager = commandManager;
+  }
+
+  public void setDefaultScanner(Scanner scanner) {
+    defaultScanner = scanner;
   }
 
   public void setScanner(Scanner scanner) {
@@ -40,7 +47,18 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
    */
   private String enterCommand() {
     System.out.println("Введите команду:");
-    return scanner.nextLine();
+    try {
+      if (scanner.hasNextLine()) {
+        return scanner.nextLine();
+      } else {
+        System.out.println("Обнаружен EOF");
+        scanner = Main.resetScanner(this);
+        return "";
+      }
+    } catch (Exception e) {
+      System.out.println("Возникла ошибка: " + e.getMessage());
+      return "";
+    }
   }
 
   /**
@@ -55,10 +73,9 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
   /**
    * Определение команды и её выполнение
    *
-   * @param commandManager менеджер команд
    * @param line команда из скрипта или пустая строка
    */
-  public void run(CommandManager commandManager, String line) {
+  public void run(String line) {
     String input;
     if (line.isEmpty()) input = enterCommand();
     else input = line;
@@ -79,10 +96,12 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
           collectionManager.setUpdateDateTime(LocalDateTime.now());
         }
 
-        if (currentCommand instanceof ScriptCommand){
+        if (currentCommand instanceof ScriptCommand) {
           ((ScriptCommand) currentCommand).setScriptMode(scriptMode);
-          if (scriptMode) DataReader.setCurrentScanner(scanner);
-          else DataReader.setCurrentScanner(defaultScanner);
+          if (scriptMode) {
+            DataReader.setCurrentScanner(scanner);
+            DataReader.setScriptMode(true);
+          } else DataReader.setCurrentScanner(defaultScanner);
         }
 
         if (currentCommand.isArgumentable()) {
@@ -92,7 +111,9 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
 
       } else {
         System.out.println(
-            "Команды \"" + commandName + "\" не существует. Попробуйте ещё раз.\nЧтобы посмотреть список команд, напишите help.");
+            "Команды \""
+                + commandName
+                + "\" не существует. Попробуйте ещё раз.\nЧтобы посмотреть список команд, напишите help.");
       }
     } catch (Exception e) {
       System.out.println(e.getMessage());

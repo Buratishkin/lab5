@@ -27,7 +27,7 @@ public class CommandManager {
     return commands;
   }
 
-  public AbstractCommand getCommand(String name){
+  public AbstractCommand getCommand(String name) {
     return commands.get(name);
   }
 }

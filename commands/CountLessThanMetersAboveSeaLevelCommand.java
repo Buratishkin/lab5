@@ -2,13 +2,13 @@ package commands;
 
 import exceptions.ValidateException;
 import interfaces.Identifiable;
+import java.lang.reflect.Method;
 import managers.CollectionManager;
 import managers.ValidationManager;
 
-import java.lang.reflect.Method;
-
 /** Выводит количество элементов, значение поля metersAboveSeaLevel которых меньше заданного */
-public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
+public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & Identifiable>
+    extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
   private final ValidationManager validationManager;
@@ -18,7 +18,8 @@ public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & I
    *
    * @param collectionManager менеджер коллекций
    */
-  public CountLessThanMetersAboveSeaLevelCommand(CollectionManager<T> collectionManager, ValidationManager validationManager) {
+  public CountLessThanMetersAboveSeaLevelCommand(
+      CollectionManager<T> collectionManager, ValidationManager validationManager) {
     super(
         "count_less_than_meters_above_sea_level",
         "Выводит количество элементов, значение поля metersAboveSeaLevel которых меньше заданного.");
@@ -44,11 +45,11 @@ public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & I
     }
 
     for (T element : collectionManager.getElements()) {
-        Method getIdMethod = collectionManager.getObjectMethod(element, "getMetersAboveSeaLevel");
-        float meters = (float) collectionManager.invokeObjectMethod(getIdMethod, element);
-        if (meters < metersAboveSeaLevel) {
-          counter++;
-        }
+      Method getIdMethod = collectionManager.getObjectMethod(element, "getMetersAboveSeaLevel");
+      float meters = (float) collectionManager.invokeObjectMethod(getIdMethod, element);
+      if (meters < metersAboveSeaLevel) {
+        counter++;
+      }
     }
 
     System.out.println(

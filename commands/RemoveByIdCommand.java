@@ -34,18 +34,22 @@ public class RemoveByIdCommand<T extends Comparable<T> & Identifiable> extends A
     } catch (NumberFormatException e) {
       throw new NumberFormatException("Переданный аргумент " + arg + " не является числом.");
     }
-    if (!collectionManager.contains(id)) {
-      throw new IllegalArgumentException("В коллекции нет объекта с индексом " + id);
-    } else {
+    try {
+      collectionManager.contains(id);
       idCreator.delId(id);
       collectionManager.removeElement(collectionManager.getById(id));
       System.out.println("Город удален.");
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          "В коллекции нет объекта с индексом "
+              + id
+              + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
     }
   }
 
   @Override
   public boolean isArgumentable() {
-    return false;
+    return true;
   }
 
   @Override

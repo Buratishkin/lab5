@@ -1,16 +1,13 @@
 package commands;
-  
+
+import interfaces.Identifiable;
+import io.FileManager;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
-
-import interfaces.Identifiable;
-import io.DataReader;
-import io.InputManager;
 import main.Main;
 import managers.CommandManager;
-import io.FileManager;
 
 /** Считываются и исполняются скрипт из указанного файла */
 public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
@@ -18,8 +15,6 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
   private final Set<String> pastFiles = new HashSet<>();
   private final CommandHandler<T> commandHandler;
   private static String lostLine = "";
-
-
 
   /**
    * Конструктор
@@ -48,7 +43,7 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
 
     if (pastFiles.contains(file.getAbsolutePath())) {
       System.out.println(
-              "В скрипте обнаружена рекурсия. Повторно вызывается файл: " + file.getAbsolutePath());
+          "В скрипте обнаружена рекурсия. Повторно вызывается файл: " + file.getAbsolutePath());
       return;
     }
 
@@ -57,15 +52,14 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
       pastFiles.add(file.getAbsolutePath());
       String line;
       commandHandler.setMode(true);
+      commandHandler.setScanner(scanner);
       while (scanner.hasNext() || !lostLine.isEmpty()) {
         if (!lostLine.isEmpty()) {
           line = lostLine;
           lostLine = "";
-        }
-        else line = scanner.nextLine().trim();
+        } else line = scanner.nextLine().trim();
         if (line.isEmpty()) continue;
-        commandHandler.setScanner(scanner);
-        commandHandler.run(commandManager, line);
+        commandHandler.run(line);
       }
       commandHandler.setMode(false);
       commandHandler.setScanner(Main.getScanner());
@@ -78,13 +72,14 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
     ExecuteScriptCommand.lostLine = lostLine;
   }
 
-  public void getHelp(){
-    System.out.println("Структура скрипта:" +
-            "\n    Каждая команда начинается с новой строки. Для получения списка существующих команд напишите help." +
-            "\n    Если команда добавляет элемент в коллекцию, то перед значениями полей должно быть 4 пробела." +
-            "\n    Если значение полей меньше количества, нужных для создания класса, то недостающие поля нужно будет вводить вручную." +
-            "\n    Если больше - лишние поля просто отбрасываются." +
-            "\nЕсли возникает рекурсия - выполнение скрипта прекращается.");
+  public void getHelp() {
+    System.out.println(
+        "Структура скрипта:"
+            + "\n    Каждая команда начинается с новой строки. Для получения списка существующих команд напишите help."
+            + "\n    Если команда добавляет элемент в коллекцию, то перед значениями полей должно быть 4 пробела."
+            + "\n    Если значение полей меньше количества, нужных для создания класса, то недостающие поля нужно будет вводить вручную."
+            + "\n    Если больше - лишние поля просто отбрасываются."
+            + "\nЕсли возникает рекурсия - выполнение скрипта прекращается.");
   }
 
   @Override

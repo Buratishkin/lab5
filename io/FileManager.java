@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import interfaces.Identifiable;
-import managers.CollectionManager;
 import java.io.*;
 import java.util.*;
+import managers.CollectionManager;
 
 /** Менеджер для работы с файлами */
 public class FileManager<T extends Comparable<T> & Identifiable> {
@@ -20,7 +20,11 @@ public class FileManager<T extends Comparable<T> & Identifiable> {
    *
    * @param inputFileName имя файла
    */
-  public FileManager(String inputFileName, CollectionManager<T> collectionManager, ObjectMapper objectMapper, Class<T> tClass) {
+  public FileManager(
+      String inputFileName,
+      CollectionManager<T> collectionManager,
+      ObjectMapper objectMapper,
+      Class<T> tClass) {
     this.inputFileName = inputFileName;
     this.collectionManager = collectionManager;
     this.objectMapper = objectMapper;
@@ -42,17 +46,17 @@ public class FileManager<T extends Comparable<T> & Identifiable> {
   }
 
   public T convertMapToObject(Map<String, Object> objectMap) {
-    try{
+    try {
       objectMapper.registerModule(new JavaTimeModule());
       return objectMapper.convertValue(objectMap, tClass);
-    } catch (Exception e){
+    } catch (Exception e) {
       System.out.println("Не получилось создать объект класса " + tClass + ":\n" + e.getMessage());
     }
     return null;
   }
 
-  public void convertListToCollection(List<Map<String, Object>> collectionList){
-    for (Map<String, Object> objectMap : collectionList){
+  public void convertListToCollection(List<Map<String, Object>> collectionList) {
+    for (Map<String, Object> objectMap : collectionList) {
       collectionManager.addElement(convertMapToObject(objectMap));
     }
   }

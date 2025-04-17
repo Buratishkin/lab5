@@ -1,8 +1,7 @@
 package service;
 
-import java.util.TreeSet;
-
 import interfaces.Identifiable;
+import java.util.TreeSet;
 import managers.CollectionManager;
 
 /** Класс для генерации id */
@@ -26,9 +25,9 @@ public class IdCreator<T extends Comparable<T> & Identifiable> {
    */
   public int getId() {
     if (freeId.isEmpty()) {
-      return collectionManager.getObjectsId().getLast() + 1;
+      return collectionManager.getObjectsId().last() + 1;
     } else {
-      int id = freeId.getFirst();
+      int id = freeId.first();
       freeId.remove(id);
       return id;
     }
@@ -43,12 +42,10 @@ public class IdCreator<T extends Comparable<T> & Identifiable> {
     freeId.add(id);
   }
 
-  /**
-   * Добавляет в массив свободные id
-   */
+  /** Добавляет в массив свободные id */
   public void addFreeId() {
     try {
-      for (int i = 1; i < collectionManager.getObjectsId().getLast(); i++) {
+      for (int i = 1; i < collectionManager.getObjectsId().last(); i++) {
         if (!collectionManager.getObjectsId().contains(i)) freeId.add(i);
       }
     } catch (Exception e) {

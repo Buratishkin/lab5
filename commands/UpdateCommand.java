@@ -6,14 +6,15 @@ import io.InputManager;
 import managers.*;
 
 /** Обновляет значение элемента коллекции, id которого равен заданному. */
-public class UpdateCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements ScriptCommand {
+public class UpdateCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
+    implements ScriptCommand {
 
   private final InputManager<T> inputManager;
   private final CollectionManager<T> collectionManager;
   private boolean scriptMode = false;
 
   @Override
-  public void setScriptMode(boolean scriptMode){
+  public void setScriptMode(boolean scriptMode) {
     this.scriptMode = scriptMode;
   }
 
@@ -41,16 +42,17 @@ public class UpdateCommand<T extends Comparable<T> & Identifiable> extends Abstr
     } catch (NumberFormatException e) {
       throw new NumberFormatException("Переданный аргумент " + arg + " не является числом.");
     }
-    if (!collectionManager.contains(id)) {
-      throw new IllegalArgumentException(
-          "В коллекции нет объекта с индексом "
-              + id
-              + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
-    } else {
+    try {
+      collectionManager.contains(id);
       collectionManager.removeElement(collectionManager.getById(id));
       inputManager.setCustomId(id);
       collectionManager.addElement(inputManager.inputObject());
       System.out.println("Город обновлён.");
+    } catch (Exception e) {
+      throw new IllegalArgumentException(
+          "В коллекции нет объекта с индексом "
+              + id
+              + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
     }
   }
 

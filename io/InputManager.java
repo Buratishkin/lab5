@@ -3,9 +3,9 @@ package io;
 import interfaces.Identifiable;
 
 public interface InputManager<T extends Comparable<T> & Identifiable> {
-    T inputObject();
+  T inputObject();
 
-    DataReader getDataReader();
+  DataReader getDataReader();
 
-    void setCustomId(int id);
+  void setCustomId(int id);
 }

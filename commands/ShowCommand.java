@@ -1,9 +1,8 @@
 package commands;
 
+import interfaces.Identifiable;
 import java.util.Comparator;
 import java.util.TreeSet;
-
-import interfaces.Identifiable;
 import managers.CollectionManager;
 
 /** Выводит в стандартный поток вывода все элементы коллекции в строковом представлении. */

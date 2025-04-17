@@ -1,14 +1,15 @@
 package commands;
 
+import interfaces.Identifiable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import interfaces.Identifiable;
 import managers.CollectionManager;
 
 /**
  * Группирует элементы коллекции по значению поля name. Выводит количество элементов в каждой группе
  */
-public class GroupCountingByNameCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
+public class GroupCountingByNameCommand<T extends Comparable<T> & Identifiable>
+    extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
 

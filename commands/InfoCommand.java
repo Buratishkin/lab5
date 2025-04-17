@@ -1,9 +1,8 @@
 package commands;
 
 import interfaces.Identifiable;
-import managers.CollectionManager;
-
 import java.lang.reflect.Method;
+import managers.CollectionManager;
 
 /** Выводит в стандартный поток вывода информацию о коллекции */
 public class InfoCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {

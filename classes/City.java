@@ -4,7 +4,6 @@ import enums.Climate;
 import enums.Government;
 import enums.StandardOfLiving;
 import interfaces.Identifiable;
-
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -192,6 +191,4 @@ public class City implements Comparable<City>, Identifiable {
   public int hashCode() {
     return Objects.hash(population, coordinates);
   }
-
-
 }

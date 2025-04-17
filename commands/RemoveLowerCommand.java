@@ -7,14 +7,15 @@ import managers.CollectionManager;
 import managers.CommandManager;
 
 /** Удаляет из коллекции все элементы, меньшие, чем заданный */
-public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand implements ScriptCommand {
+public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
+    implements ScriptCommand {
 
   private final CollectionManager<T> collectionManager;
   private final CommandManager commandManager;
   private boolean scriptMode = false;
 
   @Override
-  public void setScriptMode(boolean scriptMode){
+  public void setScriptMode(boolean scriptMode) {
     this.scriptMode = scriptMode;
   }
 
@@ -37,7 +38,8 @@ public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends 
   @Override
   public void execute(String arg) {
     AddCommand<T> addCommand = (AddCommand<T>) commandManager.getCommand("add");
-    RemoveByIdCommand<T> removeByIdCommand = (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
+    RemoveByIdCommand<T> removeByIdCommand =
+        (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
 
     int oldSize = collectionManager.objectsSize();
     try {
@@ -52,9 +54,10 @@ public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends 
         removeByIdCommand.execute(Integer.toString(collectionManager.getId(element)));
       }
     }
+    collectionManager.removeElement(newElement);
     System.out.println(
-            "Количество элементов удаленных командой remove_lower: "
-                    + (oldSize - collectionManager.objectsSize() + 1));
+        "Количество элементов удаленных командой remove_lower: "
+            + (oldSize - collectionManager.objectsSize() + 1));
   }
 
   @Override
