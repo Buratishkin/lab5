@@ -16,6 +16,7 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
   private final Set<String> pastFiles = new HashSet<>();
   private final CommandHandler<T> commandHandler;
   private static String lostLine = "";
+  private String argument;
 
   /**
    * Конструктор
@@ -36,7 +37,8 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
    */
   @Override
   public void execute(String fileName) {
-    File file = new File(fileName);
+    argument = fileName;
+    File file = new File(argument);
 
     if (!FileManager.canRead(file)) {
       return;

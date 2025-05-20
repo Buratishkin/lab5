@@ -42,27 +42,6 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
   }
 
   /**
-   * Метод для ввода команды
-   *
-   * @return введенную команду
-   */
-  private String enterCommand() {
-    System.out.println("Введите команду:");
-    try {
-      if (scanner.hasNextLine()) {
-        return scanner.nextLine();
-      } else {
-        System.out.println("Обнаружен EOF");
-        scanner = Main.resetScanner(this);
-        return "";
-      }
-    } catch (Exception e) {
-      System.out.println("Возникла ошибка: " + e.getMessage());
-      return "";
-    }
-  }
-
-  /**
    * Ставит режим выполнения: false - пользовательский ввод, true - выполнение скрипта
    *
    * @param scriptMode мод
@@ -76,10 +55,8 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
    *
    * @param line команда из скрипта или пустая строка
    */
-  public void run(String line) {
-    String input;
-    if (line.isEmpty()) input = enterCommand();
-    else input = line;
+  public String run(String line) {
+    String input = line;
     String[] parts = input.trim().split("\\s+");
 
     if (parts.length == 0 || parts[0].isEmpty()) {
@@ -87,7 +64,6 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
     }
 
     String commandName = parts[0].trim().toLowerCase();
-
     try {
       if (commandManager.getCommands().containsKey(commandName)) {
         AbstractCommand currentCommand = commandManager.getCommands().get(commandName);
@@ -109,7 +85,7 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
           if (parts.length < 2) throw new CommandException("Не передан аргумент для команды.");
           else currentCommand.execute(parts[1]);
         } else currentCommand.execute(parts[0]);
-
+        return line;
       } else {
         System.out.println(
             "Команды \""
@@ -119,5 +95,6 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
+    return null;
   }
 }

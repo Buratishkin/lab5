@@ -12,6 +12,7 @@ public class UpdateCommand<T extends Comparable<T> & Identifiable> extends Abstr
   private final InputManager<T> inputManager;
   private final CollectionManager<T> collectionManager;
   private boolean scriptMode = false;
+  private Integer argument;
 
   @Override
   public void setScriptMode(boolean scriptMode) {
@@ -36,22 +37,21 @@ public class UpdateCommand<T extends Comparable<T> & Identifiable> extends Abstr
    */
   @Override
   public void execute(String arg) {
-    int id;
     try {
-      id = Integer.parseInt(arg);
+      argument = Integer.parseInt(arg);
     } catch (NumberFormatException e) {
       throw new NumberFormatException("Переданный аргумент " + arg + " не является числом.");
     }
     try {
-      collectionManager.contains(id);
-      collectionManager.removeElement(collectionManager.getById(id));
-      inputManager.setCustomId(id);
+      collectionManager.contains(argument);
+      collectionManager.removeElement(collectionManager.getById(argument));
+      inputManager.setCustomId(argument);
       collectionManager.addElement(inputManager.inputObject());
       System.out.println("Город обновлён.");
     } catch (Exception e) {
       throw new IllegalArgumentException(
           "В коллекции нет объекта с индексом "
-              + id
+              + argument
               + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
     }
   }

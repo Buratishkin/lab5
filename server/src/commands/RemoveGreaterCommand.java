@@ -12,16 +12,12 @@ public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extend
 
   private final CollectionManager<T> collectionManager;
   private final CommandManager commandManager;
-  private boolean consoleMode = true;
   private boolean scriptMode = false;
+  private String argument;
 
   @Override
   public void setScriptMode(boolean scriptMode) {
     this.scriptMode = scriptMode;
-  }
-
-  public void setConsoleMode(boolean consoleMode) {
-    this.consoleMode = consoleMode;
   }
 
   /**
@@ -43,6 +39,7 @@ public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extend
    */
   @Override
   public void execute(String arg) {
+    argument = arg;
     AddCommand<T> addCommand = (AddCommand<T>) commandManager.getCommand("add");
     RemoveByIdCommand<T> removeByIdCommand =
         (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
@@ -50,7 +47,7 @@ public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extend
     int oldSize = collectionManager.objectsSize();
     try {
       addCommand.setScriptMode(scriptMode);
-      addCommand.execute(arg);
+      addCommand.execute(argument);
     } catch (DuplicateElementException e) {
       System.out.println(e.getMessage());
     }

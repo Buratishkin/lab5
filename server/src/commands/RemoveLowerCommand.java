@@ -13,6 +13,7 @@ public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends 
   private final CollectionManager<T> collectionManager;
   private final CommandManager commandManager;
   private boolean scriptMode = false;
+  private String argument;
 
   @Override
   public void setScriptMode(boolean scriptMode) {
@@ -41,6 +42,7 @@ public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends 
     RemoveByIdCommand<T> removeByIdCommand =
         (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
 
+    argument = arg;
     int oldSize = collectionManager.objectsSize();
     try {
       addCommand.setScriptMode(scriptMode);

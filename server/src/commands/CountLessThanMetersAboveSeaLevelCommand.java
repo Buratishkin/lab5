@@ -13,6 +13,7 @@ public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & I
 
   private final CollectionManager<T> collectionManager;
   private final ValidationManager validationManager;
+  private Float argument;
 
   /**
    * Конструктор
@@ -35,11 +36,10 @@ public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & I
    */
   @Override
   public void execute(String arg) {
-    float metersAboveSeaLevel;
     int counter = 0;
 
     try {
-      metersAboveSeaLevel = validationManager.validateFloat(arg, false);
+      argument = validationManager.validateFloat(arg, false);
     } catch (ValidateException e) {
       System.out.println(e.getMessage());
       return;
@@ -48,14 +48,14 @@ public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & I
     for (T element : collectionManager.getElements()) {
       Method getIdMethod = collectionManager.getObjectMethod(element, "getMetersAboveSeaLevel");
       float meters = (float) collectionManager.invokeObjectMethod(getIdMethod, element);
-      if (meters < metersAboveSeaLevel) {
+      if (meters < argument) {
         counter++;
       }
     }
 
     System.out.println(
         "Количество элементов значение уровня воды, которых меньше "
-            + metersAboveSeaLevel
+            + argument
             + ": "
             + counter);
   }

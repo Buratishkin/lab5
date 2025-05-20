@@ -73,11 +73,11 @@ public class FileManager<T extends Comparable<T> & Identifiable> {
    */
   public static boolean canRead(File file) {
     if (!file.exists()) {
-      System.out.println("Файл не существует: " + file.getAbsolutePath() + ".");
+      System.out.println("Файл не существует: " + file.getAbsolutePath());
       return false;
     }
     if (!file.canRead()) {
-      System.out.println("Нет прав на чтение файла: " + file.getAbsolutePath() + ".");
+      System.out.println("Нет прав на чтение файла: " + file.getAbsolutePath());
       return false;
     }
     return true;

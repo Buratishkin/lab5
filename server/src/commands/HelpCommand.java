@@ -2,6 +2,10 @@ package commands;
 
 import managers.CommandManager;
 
+import utils.Console;
+
+import java.io.IOException;
+
 /** Выводит в стандартный поток вывода информацию о коллекции */
 public class HelpCommand extends AbstractCommand {
 
@@ -23,11 +27,13 @@ public class HelpCommand extends AbstractCommand {
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
-    System.out.println("Список команд:");
+  public void execute(String arg) throws IOException {
+    StringBuilder line = new StringBuilder();
+    line.append("Список команд:\n");
     for (AbstractCommand command : commandManager.getCommands().values()) {
-      System.out.println("    " + command.toString());
+      line.append("    " + command.toString() + "\n");
     }
+    System.out.println(line);
   }
 
   @Override

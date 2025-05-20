@@ -10,6 +10,7 @@ public class FilterContainsNameCommand<T extends Comparable<T> & Identifiable>
     extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
+  private String argument;
 
   /**
    * Конструктор
@@ -30,20 +31,21 @@ public class FilterContainsNameCommand<T extends Comparable<T> & Identifiable>
    */
   @Override
   public void execute(String arg) {
+    argument = arg;
     int flag = 0;
     for (T element : collectionManager.getElements()) {
       Method getNameMethod = collectionManager.getObjectMethod(element, "getName");
       String elementName = (String) collectionManager.invokeObjectMethod(getNameMethod, element);
 
-      if (elementName.contains(arg)) {
+      if (elementName.contains(argument)) {
         flag++;
         if (flag == 1) {
-          System.out.println("Элементы с подстрокой " + arg + ":");
+          System.out.println("Элементы с подстрокой " + argument + ":");
         }
         System.out.println(element.toString());
       }
     }
-    if (flag == 0) System.out.println("Нет элементов с подстрокой " + arg + ".");
+    if (flag == 0) System.out.println("Нет элементов с подстрокой " + argument + ".");
   }
 
   @Override

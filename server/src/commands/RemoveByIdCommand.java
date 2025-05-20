@@ -9,6 +9,7 @@ public class RemoveByIdCommand<T extends Comparable<T> & Identifiable> extends A
 
   private final CollectionManager<T> collectionManager;
   private final IdCreator<T> idCreator;
+  private Integer argument;
 
   /**
    * Конструктор
@@ -28,21 +29,20 @@ public class RemoveByIdCommand<T extends Comparable<T> & Identifiable> extends A
    */
   @Override
   public void execute(String arg) {
-    int id;
     try {
-      id = Integer.parseInt(arg);
+      argument = Integer.parseInt(arg);
     } catch (NumberFormatException e) {
-      throw new NumberFormatException("Переданный аргумент " + arg + " не является числом.");
+      throw new NumberFormatException("Переданный аргумент " + argument + " не является числом.");
     }
     try {
-      collectionManager.contains(id);
-      idCreator.delId(id);
-      collectionManager.removeElement(collectionManager.getById(id));
+      collectionManager.contains(argument);
+      idCreator.delId(argument);
+      collectionManager.removeElement(collectionManager.getById(argument));
       System.out.println("Город удален.");
     } catch (Exception e) {
       throw new IllegalArgumentException(
           "В коллекции нет объекта с индексом "
-              + id
+              + argument
               + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
     }
   }

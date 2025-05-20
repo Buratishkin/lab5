@@ -10,6 +10,10 @@ public class EnvManager {
   public EnvManager(Scanner scanner) {
     this.scanner = scanner;
   }
+  public EnvManager() {
+    this.scanner = null;
+    env = "collection";
+  }
 
   public void setEnv(String newEnv, String message) {
     try {

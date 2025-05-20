@@ -2,7 +2,7 @@ package io;
 
 import commands.ExecuteScriptCommand;
 import exceptions.ValidateException;
-import Main;
+import main.Main;
 
 import java.util.LinkedList;
 import java.util.Queue;

@@ -15,7 +15,6 @@ public class Main {
     public static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-
         EnvManager envManager = new EnvManager(scanner);
         envManager.manageEnv();
 
@@ -71,8 +70,10 @@ public class Main {
         commandManager.addInCommands("save", new SaveCommand<>(collectionManager, fIleManager, writer));
         commandManager.addInCommands("show", new ShowCommand<>(collectionManager));
         commandManager.addInCommands("update", new UpdateCommand<>(collectionManager, inputManager));
+
         while (true) {
             try {
+                commandHandler.setMode(false);
                 commandHandler.run("");
             } catch (Exception e) {
                 System.out.println("Ошибка: " + e.getMessage());
