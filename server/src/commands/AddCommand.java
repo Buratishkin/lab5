@@ -41,7 +41,7 @@ public class AddCommand<T extends Comparable<T> & Identifiable> extends Abstract
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     inputManager.getDataReader().setScriptMode(scriptMode);
     T newELement = inputManager.inputObject();
     int oldSize = collectionManager.objectsSize();
@@ -51,7 +51,7 @@ public class AddCommand<T extends Comparable<T> & Identifiable> extends Abstract
       throw new DuplicateElementException("Элемент не добавлен, так как он уже есть в коллекции.");
     } else {
       collectionManager.setLastElement(newELement);
-      System.out.println("Город добавлен.");
+      return "Город добавлен.";
     }
   }
 

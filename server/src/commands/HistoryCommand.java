@@ -26,15 +26,17 @@ public class HistoryCommand extends AbstractCommand {
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
-    System.out.println("История команд:");
+  public String execute(String arg) {
+    StringBuilder line = new StringBuilder();
+    line.append("История команд:");
     if (historyCommands.size() > 11) {
       historyCommands =
           historyCommands.subList(historyCommands.size() - 11, historyCommands.size());
     }
     for (int i = 0; i < historyCommands.size(); i++) {
-      System.out.printf("%d. %s\n", i + 1, historyCommands.get(i));
+      line.append(String.format("%d. %s\n", i + 1, historyCommands.get(i)));
     }
+    return line.toString();
   }
 
   @Override

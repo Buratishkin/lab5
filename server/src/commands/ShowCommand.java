@@ -29,10 +29,11 @@ public class ShowCommand<T extends Comparable<T> & Identifiable> extends Abstrac
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
-    System.out.println("Элементы коллекции:");
-    int ind = 1;
+  public String execute(String arg) {
     StringBuilder line = new StringBuilder();
+    line.append("Элементы коллекции:\n");
+    int ind = 1;
+
     TreeSet<T> elements = new TreeSet<>(Comparator.comparingInt(T::getId));
     elements.addAll(collectionManager.getElements());
     for (T element : elements) {
@@ -43,7 +44,7 @@ public class ShowCommand<T extends Comparable<T> & Identifiable> extends Abstrac
         ind++;
       }
     }
-    System.out.println(line);
+    return line.toString();
   }
 
   @Override

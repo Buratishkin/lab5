@@ -14,22 +14,18 @@ public class Server {
     private static int clientCounter = 0;
 
     public static void main(String[] args) throws IOException {
-        // 1. Создание сервера в неблокирующем режиме
         ServerSocketChannel serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
         serverChannel.bind(new InetSocketAddress(PORT));
 
-        // 2. Создание селектора
         Selector selector = Selector.open();
         serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 
         System.out.println("Server started on port " + PORT);
 
         while (true) {
-            // 3. Ожидание событий
             selector.select();
 
-            // 4. Получение ключей с событиями
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
             Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
 
@@ -72,12 +68,12 @@ public class Server {
 
                 System.out.println("Получено от клиента: " + command);
 
-                // Обработка данных
                 String[] args = new String[1];
                 HelpClass.main(args);
                 try {
                     HelpClass.getCommandHandler().setMode(false);
-                    HelpClass.getCommandHandler().run(command);
+                    String line = HelpClass.getCommandHandler().run(command);
+                    responseToClient(clientChannel, line);
                 } catch (Exception e) {
                     System.out.println("Ошибка: " + e.getMessage());
                 }
@@ -86,5 +82,14 @@ public class Server {
                 System.out.println("Потеря соединения с клиентом");
                 clientChannel.close();
             }
+    }
+
+    private static void responseToClient(SocketChannel clientChanel, String line) throws IOException {
+        ByteBuffer responseBuffer = StandardCharsets.UTF_8.encode(line + "\n");
+
+        while (responseBuffer.hasRemaining()) {
+            clientChanel.write(responseBuffer);
+        }
+        System.out.println("Данные отправлены клиенту");
     }
 }

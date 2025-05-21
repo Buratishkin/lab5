@@ -27,13 +27,13 @@ public class HelpCommand extends AbstractCommand {
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) throws IOException {
+  public String execute(String arg) throws IOException {
     StringBuilder line = new StringBuilder();
-    line.append("Список команд:\n");
+    line.append("Список команд:");
     for (AbstractCommand command : commandManager.getCommands().values()) {
-      line.append("    " + command.toString() + "\n");
+      line.append("\n    " + command.toString());
     }
-    System.out.println(line);
+    return line.toString();
   }
 
   @Override

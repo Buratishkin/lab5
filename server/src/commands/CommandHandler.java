@@ -58,13 +58,13 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
   public String run(String line) {
     String input = line;
     String[] parts = input.trim().split("\\s+");
+    try{
+      if (parts.length == 0 || parts[0].isEmpty()) {
+        throw new IllegalArgumentException("Вы ничего не ввели. Попробуйте ещё раз");
+      }
 
-    if (parts.length == 0 || parts[0].isEmpty()) {
-      throw new IllegalArgumentException("Вы ничего не ввели. Попробуйте ещё раз.");
-    }
+      String commandName = parts[0].trim().toLowerCase();
 
-    String commandName = parts[0].trim().toLowerCase();
-    try {
       if (commandManager.getCommands().containsKey(commandName)) {
         AbstractCommand currentCommand = commandManager.getCommands().get(commandName);
         historyCommand.addInHistory(commandName);
@@ -81,20 +81,21 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
           } else DataReader.setCurrentScanner(defaultScanner);
         }
 
+        String answerLine;
         if (currentCommand.isArgumentable()) {
-          if (parts.length < 2) throw new CommandException("Не передан аргумент для команды.");
-          else currentCommand.execute(parts[1]);
-        } else currentCommand.execute(parts[0]);
-        return line;
+          if (parts.length < 2) throw new CommandException("Не передан аргумент для команды");
+          else answerLine = currentCommand.execute(parts[1]);
+        } else answerLine = currentCommand.execute(parts[0]);
+        return answerLine;
+
       } else {
-        System.out.println(
+        return (
             "Команды \""
                 + commandName
-                + "\" не существует. Попробуйте ещё раз.\nЧтобы посмотреть список команд, напишите help.");
+                + "\" не существует. Попробуйте ещё раз.\nЧтобы посмотреть список команд, напишите help");
       }
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      return (e.getMessage());
     }
-    return null;
   }
 }

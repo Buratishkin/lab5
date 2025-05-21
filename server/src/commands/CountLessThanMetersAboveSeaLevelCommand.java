@@ -35,14 +35,13 @@ public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & I
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     int counter = 0;
 
     try {
       argument = validationManager.validateFloat(arg, false);
     } catch (ValidateException e) {
-      System.out.println(e.getMessage());
-      return;
+      return e.getMessage();
     }
 
     for (T element : collectionManager.getElements()) {
@@ -53,7 +52,7 @@ public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & I
       }
     }
 
-    System.out.println(
+    return (
         "Количество элементов значение уровня воды, которых меньше "
             + argument
             + ": "

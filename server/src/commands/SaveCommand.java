@@ -31,16 +31,16 @@ public class SaveCommand<T extends Comparable<T> & Identifiable> extends Abstrac
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     if (arg.isEmpty()) {
       throw new IllegalArgumentException("Не передано имя файла.");
     }
     try {
       writer.writeToFile(fileManager.convertCollectionToList(collectionManager.getElements()));
     } catch (Exception e) {
-      System.out.println("Возникла ошибка: " + e.getMessage());
+      return ("Возникла ошибка: " + e.getMessage());
     }
-    System.out.println("Коллекция сохранена в файл.");
+    return "Коллекция сохранена в файл.";
   }
 
   @Override

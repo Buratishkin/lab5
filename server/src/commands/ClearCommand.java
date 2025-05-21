@@ -27,10 +27,10 @@ public class ClearCommand<T extends Comparable<T> & Identifiable> extends Abstra
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     collectionManager.clearCollection();
     idCreator.clearId();
-    System.out.println("Коллекция очищена");
+    return "Коллекция очищена";
   }
 
   @Override

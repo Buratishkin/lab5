@@ -1,5 +1,6 @@
 package commands;
 
+import com.sun.nio.sctp.AbstractNotificationHandler;
 import interfaces.Identifiable;
 import managers.CollectionManager;
 
@@ -26,16 +27,18 @@ public class InfoCommand<T extends Comparable<T> & Identifiable> extends Abstrac
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     float[] avgStats = getAvgStats();
-    System.out.println("Информация о коллекции:");
-    System.out.println("    Тип: TreeSet<City>");
-    System.out.println("    Количество элементов: " + collectionManager.objectsSize());
-    System.out.println("    Дата создания: " + collectionManager.getCreateDateTime());
-    System.out.println("    Дата последнего изменения: " + collectionManager.getUpdateDateTime());
-    System.out.println("    Среднее значение population: " + avgStats[0]);
-    System.out.println("    Среднее значение area: " + avgStats[1]);
-    System.out.println("    Среднее значение metersAboveSeaLevel: " + avgStats[2]);
+    StringBuilder line = new StringBuilder();
+    line.append("Информация о коллекции:");
+    line.append("\n    Тип: TreeSet<City>");
+    line.append("\n    Количество элементов: " + collectionManager.objectsSize());
+    line.append("\n    Дата создания: " + collectionManager.getCreateDateTime());
+    line.append("\n    Дата последнего изменения: " + collectionManager.getUpdateDateTime());
+    line.append("\n    Среднее значение population: " + avgStats[0]);
+    line.append("\n    Среднее значение area: " + avgStats[1]);
+    line.append("\n    Среднее значение metersAboveSeaLevel: " + avgStats[2]);
+    return line.toString();
   }
 
   /**

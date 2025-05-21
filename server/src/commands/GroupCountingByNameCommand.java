@@ -32,7 +32,7 @@ public class GroupCountingByNameCommand<T extends Comparable<T> & Identifiable>
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     ArrayList<String> vowelsGroup = new ArrayList<>();
     ArrayList<String> consonantsGroup = new ArrayList<>();
     ArrayList<String> digitsGroup = new ArrayList<>();
@@ -55,15 +55,17 @@ public class GroupCountingByNameCommand<T extends Comparable<T> & Identifiable>
       else if (firstCharStr.matches(regexDigits)) digitsGroup.add(name);
       else if (firstCharStr.matches(regexSpecials)) specialsGroup.add(name);
     }
+    StringBuilder line = new StringBuilder();
 
-    System.out.println("Города, начинающиеся с гласной буквы:");
-    System.out.println(vowelsGroup);
-    System.out.println("Города, начинающиеся с согласной буквы:");
-    System.out.println(consonantsGroup);
-    System.out.println("Города, начинающиеся с цифры:");
-    System.out.println(digitsGroup);
-    System.out.println("Города, начинающиеся со специального символа:");
-    System.out.println(specialsGroup);
+    line.append("Города, начинающиеся с гласной буквы:\n");
+    line.append(vowelsGroup);
+    line.append("\nГорода, начинающиеся с согласной буквы:\n");
+    line.append(consonantsGroup);
+    line.append("\nГорода, начинающиеся с цифры:\n");
+    line.append(digitsGroup);
+    line.append("\nГорода, начинающиеся со специального символа:");
+    line.append(specialsGroup);
+    return line.toString();
   }
 
   @Override

@@ -28,7 +28,7 @@ public class RemoveByIdCommand<T extends Comparable<T> & Identifiable> extends A
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     try {
       argument = Integer.parseInt(arg);
     } catch (NumberFormatException e) {
@@ -38,7 +38,7 @@ public class RemoveByIdCommand<T extends Comparable<T> & Identifiable> extends A
       collectionManager.contains(argument);
       idCreator.delId(argument);
       collectionManager.removeElement(collectionManager.getById(argument));
-      System.out.println("Город удален.");
+      return "Город удален.";
     } catch (Exception e) {
       throw new IllegalArgumentException(
           "В коллекции нет объекта с индексом "

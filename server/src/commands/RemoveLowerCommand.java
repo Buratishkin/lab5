@@ -37,7 +37,7 @@ public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends 
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     AddCommand<T> addCommand = (AddCommand<T>) commandManager.getCommand("add");
     RemoveByIdCommand<T> removeByIdCommand =
         (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
@@ -48,7 +48,7 @@ public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends 
       addCommand.setScriptMode(scriptMode);
       addCommand.execute(arg);
     } catch (DuplicateElementException e) {
-      System.out.println(e.getMessage());
+      return (e.getMessage());
     }
     T newElement = collectionManager.getLastElement();
     for (T element : collectionManager.getElements()) {
@@ -57,7 +57,7 @@ public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends 
       }
     }
     collectionManager.removeElement(newElement);
-    System.out.println(
+    return (
         "Количество элементов удаленных командой remove_lower: "
             + (oldSize - collectionManager.objectsSize() + 1));
   }

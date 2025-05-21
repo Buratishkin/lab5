@@ -13,9 +13,9 @@ public class ExitCommand extends AbstractCommand {
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
-    System.out.println("Завершение программы");
+  public String execute(String arg) {
     System.exit(0);
+    return "Завершение программы";
   }
 
   @Override

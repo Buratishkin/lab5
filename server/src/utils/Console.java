@@ -14,12 +14,5 @@ public class Console {
        this.buffer = buffer;
    }
 
-    public void responseToClient(String line) throws IOException {
-        ByteBuffer responseBuffer = StandardCharsets.UTF_8.encode(line);
 
-        while (responseBuffer.hasRemaining()) {
-            clientChanel.write(responseBuffer);
-        }
-        System.out.println("Данные отправлены клиенту");
-    }
 }

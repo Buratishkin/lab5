@@ -30,9 +30,10 @@ public class FilterContainsNameCommand<T extends Comparable<T> & Identifiable>
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     argument = arg;
     int flag = 0;
+    StringBuilder line = new StringBuilder();
     for (T element : collectionManager.getElements()) {
       Method getNameMethod = collectionManager.getObjectMethod(element, "getName");
       String elementName = (String) collectionManager.invokeObjectMethod(getNameMethod, element);
@@ -40,12 +41,14 @@ public class FilterContainsNameCommand<T extends Comparable<T> & Identifiable>
       if (elementName.contains(argument)) {
         flag++;
         if (flag == 1) {
-          System.out.println("Элементы с подстрокой " + argument + ":");
+          line.append("Элементы с подстрокой " + argument + ":\n");
         }
-        System.out.println(element.toString());
+        line.append(element.toString() + "\n");
       }
     }
-    if (flag == 0) System.out.println("Нет элементов с подстрокой " + argument + ".");
+
+    if (flag == 0) return  "Нет элементов с подстрокой " + argument + ".";
+    else return line.toString();
   }
 
   @Override

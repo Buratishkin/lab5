@@ -36,18 +36,17 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
    * @param fileName аргумент
    */
   @Override
-  public void execute(String fileName) {
+  public String execute(String fileName) {
     argument = fileName;
     File file = new File(argument);
 
     if (!FileManager.canRead(file)) {
-      return;
+      return "Файл не существует или нет прав на его чтение";
     }
 
     if (pastFiles.contains(file.getAbsolutePath())) {
-      System.out.println(
-          "В скрипте обнаружена рекурсия. Повторно вызывается файл: " + file.getAbsolutePath());
-      return;
+      return
+          "В скрипте обнаружена рекурсия. Повторно вызывается файл: " + file.getAbsolutePath();
     }
 
     try (Scanner scanner = new Scanner(file)) {
@@ -66,8 +65,9 @@ public class ExecuteScriptCommand<T extends Comparable<T> & Identifiable> extend
       }
       commandHandler.setMode(false);
       commandHandler.setScanner(Main.getScanner());
+      return "Скрипт выполнен";
     } catch (Exception e) {
-      System.out.println("При выполнении скрипта возникла ошибка: " + e.getMessage());
+      return  "При выполнении скрипта возникла ошибка: " + e.getMessage();
     }
   }
 

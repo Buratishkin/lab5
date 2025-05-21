@@ -38,7 +38,7 @@ public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extend
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     argument = arg;
     AddCommand<T> addCommand = (AddCommand<T>) commandManager.getCommand("add");
     RemoveByIdCommand<T> removeByIdCommand =
@@ -58,7 +58,7 @@ public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extend
       }
     }
     collectionManager.removeElement(newElement);
-    System.out.println(
+    return(
         "Количество элементов удаленных командой remove_greater: "
             + (oldSize - collectionManager.objectsSize() + 1));
   }

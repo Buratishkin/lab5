@@ -36,7 +36,7 @@ public class UpdateCommand<T extends Comparable<T> & Identifiable> extends Abstr
    * @param arg аргумент
    */
   @Override
-  public void execute(String arg) {
+  public String execute(String arg) {
     try {
       argument = Integer.parseInt(arg);
     } catch (NumberFormatException e) {
@@ -47,7 +47,7 @@ public class UpdateCommand<T extends Comparable<T> & Identifiable> extends Abstr
       collectionManager.removeElement(collectionManager.getById(argument));
       inputManager.setCustomId(argument);
       collectionManager.addElement(inputManager.inputObject());
-      System.out.println("Город обновлён.");
+      return("Город обновлён.");
     } catch (Exception e) {
       throw new IllegalArgumentException(
           "В коллекции нет объекта с индексом "
