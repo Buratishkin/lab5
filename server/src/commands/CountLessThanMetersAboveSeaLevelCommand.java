@@ -3,7 +3,8 @@ package commands;
 import exceptions.ValidateException;
 import interfaces.Identifiable;
 import managers.CollectionManager;
-import managers.ValidationManager;
+import manager.ValidationManager;
+import network.Request;
 
 import java.lang.reflect.Method;
 
@@ -32,17 +33,13 @@ public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & I
   /**
    * Выполнение команды.
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
+  public String execute(Request request) {
     int counter = 0;
 
-    try {
-      argument = validationManager.validateFloat(arg, false);
-    } catch (ValidateException e) {
-      return e.getMessage();
-    }
+    argument = validationManager.validateFloat(request.getArgument(), false);
 
     for (T element : collectionManager.getElements()) {
       Method getIdMethod = collectionManager.getObjectMethod(element, "getMetersAboveSeaLevel");

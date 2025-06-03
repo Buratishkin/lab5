@@ -2,6 +2,7 @@ package commands;
 
 import interfaces.Identifiable;
 import managers.CollectionManager;
+import network.Request;
 import service.IdCreator;
 
 /** Удаляет элемент из коллекции по его id */
@@ -25,12 +26,12 @@ public class RemoveByIdCommand<T extends Comparable<T> & Identifiable> extends A
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
+  public String execute(Request request) {
     try {
-      argument = Integer.parseInt(arg);
+      argument = Integer.parseInt(request.getArgument());
     } catch (NumberFormatException e) {
       throw new NumberFormatException("Переданный аргумент " + argument + " не является числом.");
     }

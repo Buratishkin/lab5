@@ -2,22 +2,16 @@ package commands;
 
 import exceptions.CommandException;
 import interfaces.Identifiable;
-import interfaces.ScriptCommand;
-import io.DataReader;
-import main.Main;
 import managers.CollectionManager;
 import managers.CommandManager;
+import network.Request;
+import network.Response;
 
 import java.time.LocalDateTime;
-import java.util.Scanner;
 
 /** Класс для работы с командами */
 public class CommandHandler<T extends Comparable<T> & Identifiable> {
-  private boolean scriptMode = false;
   private final CommandManager commandManager;
-  private Scanner scanner;
-  private Scanner defaultScanner;
-  private final HistoryCommand historyCommand = new HistoryCommand();
   private final CollectionManager<T> collectionManager;
 
   /**
@@ -26,76 +20,43 @@ public class CommandHandler<T extends Comparable<T> & Identifiable> {
    * @param collectionManager менеджер коллекций
    */
   public CommandHandler(
-      CollectionManager<T> collectionManager, Scanner scanner, CommandManager commandManager) {
+      CollectionManager<T> collectionManager, CommandManager commandManager) {
     this.collectionManager = collectionManager;
-    defaultScanner = scanner;
-    this.scanner = scanner;
     this.commandManager = commandManager;
-  }
-
-  public void setDefaultScanner(Scanner scanner) {
-    defaultScanner = scanner;
-  }
-
-  public void setScanner(Scanner scanner) {
-    this.scanner = scanner;
-  }
-
-  /**
-   * Ставит режим выполнения: false - пользовательский ввод, true - выполнение скрипта
-   *
-   * @param scriptMode мод
-   */
-  public void setMode(boolean scriptMode) {
-    this.scriptMode = scriptMode;
   }
 
   /**
    * Определение команды и её выполнение
    *
-   * @param line команда из скрипта или пустая строка
+   * @param request команда из скрипта или пустая строка
    */
-  public String run(String line) {
-    String input = line;
-    String[] parts = input.trim().split("\\s+");
+  public Response run(Request request) {
     try{
-      if (parts.length == 0 || parts[0].isEmpty()) {
+      if (request.getCommandName().isEmpty()) {
         throw new IllegalArgumentException("Вы ничего не ввели. Попробуйте ещё раз");
       }
 
-      String commandName = parts[0].trim().toLowerCase();
+      if (commandManager.getCommands().containsKey(request.getCommandName())) {
+        AbstractCommand currentCommand = commandManager.getCommands().get(request.getCommandName());
 
-      if (commandManager.getCommands().containsKey(commandName)) {
-        AbstractCommand currentCommand = commandManager.getCommands().get(commandName);
-        historyCommand.addInHistory(commandName);
-
-        if (currentCommand.isElementable() || commandName.contains("remove")) {
+        if (currentCommand.isElementable() || request.getCommandName().contains("remove")) {
           collectionManager.setUpdateDateTime(LocalDateTime.now());
         }
 
-        if (currentCommand instanceof ScriptCommand) {
-          ((ScriptCommand) currentCommand).setScriptMode(scriptMode);
-          if (scriptMode) {
-            DataReader.setCurrentScanner(scanner);
-            DataReader.setScriptMode(true);
-          } else DataReader.setCurrentScanner(defaultScanner);
-        }
-
         String answerLine;
-        if (currentCommand.isArgumentable()) {
-          if (parts.length < 2) throw new CommandException("Не передан аргумент для команды");
-          else answerLine = currentCommand.execute(parts[1]);
-        } else answerLine = currentCommand.execute(parts[0]);
-        return answerLine;
+        if (currentCommand.isArgumentable() && (request.getArgument() == null || request.getArgument().isEmpty())) {
+          throw new CommandException("Не передан аргумент для команды");
+        } else answerLine = currentCommand.execute(request);
+        return new Response(true, answerLine);
 
       } else {
-        return (
+        throw new IllegalArgumentException(
             "Команды \""
-                + commandName
+                + request.getCommandName()
                 + "\" не существует. Попробуйте ещё раз.\nЧтобы посмотреть список команд, напишите help");
       }
     } catch (Exception e) {
-      return (e.getMessage());
+      return new Response(false, e.getMessage());
     }
   }
 }

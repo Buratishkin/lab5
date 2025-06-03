@@ -9,6 +9,7 @@ import interfaces.Identifiable;
 import managers.CollectionManager;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -16,12 +17,11 @@ import java.util.Map;
 
 public class XMLWriter<T extends Comparable<T> & Identifiable> extends FileManager<T>
     implements Writer {
-  public XMLWriter(
-      String inputFileName,
-      CollectionManager<T> collectionManager,
-      ObjectMapper objectMapper,
-      Class<T> tClass) {
-    super(inputFileName, collectionManager, objectMapper, tClass);
+  private final FileManager<T> fileManager;
+
+  public XMLWriter(FileManager<T> fileManager){
+    super(fileManager.inputFileName, fileManager.collectionManager, fileManager.objectMapper, fileManager.tClass);
+    this.fileManager = fileManager;
   }
 
   public void writeToFile(List<Map<String, Object>> collectionList) {
@@ -43,5 +43,9 @@ public class XMLWriter<T extends Comparable<T> & Identifiable> extends FileManag
     } catch (Exception e) {
       System.out.println("Ошибка сохранения: " + e.getMessage());
     }
+  }
+
+  public FileManager getFileManager() {
+    return fileManager;
   }
 }

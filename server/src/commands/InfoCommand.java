@@ -3,6 +3,7 @@ package commands;
 import com.sun.nio.sctp.AbstractNotificationHandler;
 import interfaces.Identifiable;
 import managers.CollectionManager;
+import network.Request;
 
 import java.lang.reflect.Method;
 
@@ -24,10 +25,10 @@ public class InfoCommand<T extends Comparable<T> & Identifiable> extends Abstrac
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
+  public String execute(Request request) {
     float[] avgStats = getAvgStats();
     StringBuilder line = new StringBuilder();
     line.append("Информация о коллекции:");

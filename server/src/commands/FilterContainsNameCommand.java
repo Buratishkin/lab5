@@ -2,6 +2,7 @@ package commands;
 
 import interfaces.Identifiable;
 import managers.CollectionManager;
+import network.Request;
 
 import java.lang.reflect.Method;
 
@@ -10,7 +11,6 @@ public class FilterContainsNameCommand<T extends Comparable<T> & Identifiable>
     extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
-  private String argument;
 
   /**
    * Конструктор
@@ -27,27 +27,26 @@ public class FilterContainsNameCommand<T extends Comparable<T> & Identifiable>
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
-    argument = arg;
+  public String execute(Request request) {
     int flag = 0;
     StringBuilder line = new StringBuilder();
     for (T element : collectionManager.getElements()) {
       Method getNameMethod = collectionManager.getObjectMethod(element, "getName");
       String elementName = (String) collectionManager.invokeObjectMethod(getNameMethod, element);
 
-      if (elementName.contains(argument)) {
+      if (elementName.contains(request.getArgument())) {
         flag++;
         if (flag == 1) {
-          line.append("Элементы с подстрокой " + argument + ":\n");
+          line.append("Элементы с подстрокой " + request.getArgument() + ":\n");
         }
         line.append(element.toString() + "\n");
       }
     }
 
-    if (flag == 0) return  "Нет элементов с подстрокой " + argument + ".";
+    if (flag == 0) return  "Нет элементов с подстрокой " + request.getArgument() + ".";
     else return line.toString();
   }
 

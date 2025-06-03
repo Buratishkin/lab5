@@ -43,7 +43,7 @@ public class FileManager<T extends Comparable<T> & Identifiable> {
     return collectionList;
   }
 
-  public Map<String, Object> convertObjectToMap(T object) {
+  public  Map<String, Object> convertObjectToMap(T object) {
     objectMapper.registerModule(new JavaTimeModule());
     objectMapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
     return objectMapper.convertValue(object, Map.class);

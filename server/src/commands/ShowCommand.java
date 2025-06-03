@@ -2,6 +2,7 @@ package commands;
 
 import interfaces.Identifiable;
 import managers.CollectionManager;
+import network.Request;
 
 import java.util.Comparator;
 import java.util.TreeSet;
@@ -26,10 +27,10 @@ public class ShowCommand<T extends Comparable<T> & Identifiable> extends Abstrac
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
+  public String execute(Request request) {
     StringBuilder line = new StringBuilder();
     line.append("Элементы коллекции:\n");
     int ind = 1;

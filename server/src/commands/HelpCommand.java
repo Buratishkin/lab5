@@ -1,8 +1,7 @@
 package commands;
 
 import managers.CommandManager;
-
-import utils.Console;
+import network.Request;
 
 import java.io.IOException;
 
@@ -27,7 +26,7 @@ public class HelpCommand extends AbstractCommand {
    * @param arg аргумент
    */
   @Override
-  public String execute(String arg) throws IOException {
+  public String execute(Request request) throws IOException {
     StringBuilder line = new StringBuilder();
     line.append("Список команд:");
     for (AbstractCommand command : commandManager.getCommands().values()) {

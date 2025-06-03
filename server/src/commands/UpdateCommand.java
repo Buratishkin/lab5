@@ -2,17 +2,15 @@ package commands;
 
 import interfaces.Identifiable;
 import interfaces.ScriptCommand;
-import io.InputManager;
 import managers.CollectionManager;
+import network.Request;
 
 /** Обновляет значение элемента коллекции, id которого равен заданному. */
 public class UpdateCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
     implements ScriptCommand {
 
-  private final InputManager<T> inputManager;
   private final CollectionManager<T> collectionManager;
   private boolean scriptMode = false;
-  private Integer argument;
 
   @Override
   public void setScriptMode(boolean scriptMode) {
@@ -24,36 +22,30 @@ public class UpdateCommand<T extends Comparable<T> & Identifiable> extends Abstr
    *
    * @param collectionManager менеджер коллекций
    */
-  public UpdateCommand(CollectionManager<T> collectionManager, InputManager<T> inputManager) {
+  public UpdateCommand(CollectionManager<T> collectionManager) {
     super("update", "Обновляет значение элемента коллекции, id которого равен заданному.");
     this.collectionManager = collectionManager;
-    this.inputManager = inputManager;
   }
 
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
+  public String execute(Request request) {
+    int argument = 0;
     try {
-      argument = Integer.parseInt(arg);
+      argument = Integer.parseInt(request.getArgument());
     } catch (NumberFormatException e) {
-      throw new NumberFormatException("Переданный аргумент " + arg + " не является числом.");
+      throw new NumberFormatException("Переданный аргумент " + argument + " не является числом.");
     }
-    try {
-      collectionManager.contains(argument);
-      collectionManager.removeElement(collectionManager.getById(argument));
-      inputManager.setCustomId(argument);
-      collectionManager.addElement(inputManager.inputObject());
-      return("Город обновлён.");
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "В коллекции нет объекта с индексом "
-              + argument
-              + ".\nЧтобы узнать какие элементы есть в коллекции напишите show.");
-    }
+
+      if (collectionManager.contains(argument)) {
+        collectionManager.removeElement(collectionManager.getById(argument));
+        collectionManager.addElement((T) request.getCity());
+        return "Город обновлён.";
+      } else return "В коллекции нет элемента с индексом " + argument;
   }
 
   @Override

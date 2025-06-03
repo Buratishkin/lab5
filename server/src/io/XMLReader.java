@@ -1,11 +1,9 @@
 package io;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import interfaces.Identifiable;
-import managers.CollectionManager;
 
 import java.io.File;
 import java.util.List;
@@ -13,13 +11,13 @@ import java.util.Map;
 
 public class XMLReader<T extends Comparable<T> & Identifiable> extends FileManager<T>
     implements Reader {
-  public XMLReader(
-      String inputFileName,
-      CollectionManager<T> collectionManager,
-      ObjectMapper objectMapper,
-      Class<T> tClass) {
-    super(inputFileName, collectionManager, objectMapper, tClass);
+  private final FileManager<T> fileManager;
+
+  public XMLReader(FileManager<T> fileManager){
+    super(fileManager.inputFileName, fileManager.collectionManager, fileManager.objectMapper, fileManager.tClass);
+    this.fileManager = fileManager;
   }
+
 
   public List<Map<String, Object>> readFromFile() {
     File file = new File(inputFileName);

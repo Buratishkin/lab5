@@ -1,58 +1,44 @@
 package commands;
 
+import classes.City;
 import exceptions.DuplicateElementException;
 import interfaces.Identifiable;
-import interfaces.ScriptCommand;
-import io.InputManager;
 import managers.CollectionManager;
-import service.IdCreator;
+import network.Request;
 
 /** Добавляет новый элемент в коллекцию */
-public class AddCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
-    implements ScriptCommand {
+public class AddCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
   private final CollectionManager<T> collectionManager;
-  private final IdCreator<T> idCreator;
-  private final InputManager<T> inputManager;
-  private boolean scriptMode = false;
-
-  @Override
-  public void setScriptMode(boolean scriptMode) {
-    this.scriptMode = scriptMode;
-  }
-
   /**
    * Конструктор
    *
    * @param collectionManager коллекция городов
    */
   public AddCommand(
-      CollectionManager<T> collectionManager,
-      IdCreator<T> idCreator,
-      InputManager<T> inputManager) {
+      CollectionManager<T> collectionManager) {
     super("add", "Добавляет новый элемент в коллекцию.");
     this.collectionManager = collectionManager;
-    this.idCreator = idCreator;
-    this.inputManager = inputManager;
+
   }
 
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
-    inputManager.getDataReader().setScriptMode(scriptMode);
-    T newELement = inputManager.inputObject();
-    int oldSize = collectionManager.objectsSize();
-    collectionManager.addElement(newELement);
-    if (oldSize == collectionManager.objectsSize()) {
-      idCreator.delId(newELement.getId());
-      throw new DuplicateElementException("Элемент не добавлен, так как он уже есть в коллекции.");
-    } else {
-      collectionManager.setLastElement(newELement);
-      return "Город добавлен.";
+  public String execute(Request request) {
+    try {
+      City newElement = request.getCity();
+      if (newElement == null) throw new IllegalArgumentException("Город не может быть null");
+      if (!collectionManager.contains(newElement.getId())) {
+        collectionManager.addElement((T) newElement);
+        return "Город добавлен";
+      } else throw new DuplicateElementException("Город с таким id уже существует");
+    } catch (Exception e){
+      e.printStackTrace();
     }
+    return "";
   }
 
   @Override

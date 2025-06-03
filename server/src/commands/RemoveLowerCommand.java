@@ -5,20 +5,13 @@ import interfaces.Identifiable;
 import interfaces.ScriptCommand;
 import managers.CollectionManager;
 import managers.CommandManager;
+import network.Request;
 
 /** Удаляет из коллекции все элементы, меньшие, чем заданный */
-public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
-    implements ScriptCommand {
+public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
   private final CommandManager commandManager;
-  private boolean scriptMode = false;
-  private String argument;
-
-  @Override
-  public void setScriptMode(boolean scriptMode) {
-    this.scriptMode = scriptMode;
-  }
 
   /**
    * Конструктор
@@ -34,32 +27,23 @@ public class RemoveLowerCommand<T extends Comparable<T> & Identifiable> extends 
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
-    AddCommand<T> addCommand = (AddCommand<T>) commandManager.getCommand("add");
+  public String execute(Request request) {
     RemoveByIdCommand<T> removeByIdCommand =
-        (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
-
-    argument = arg;
+            (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
+    T newElement = (T) request.getCity();
     int oldSize = collectionManager.objectsSize();
-    try {
-      addCommand.setScriptMode(scriptMode);
-      addCommand.execute(arg);
-    } catch (DuplicateElementException e) {
-      return (e.getMessage());
-    }
-    T newElement = collectionManager.getLastElement();
     for (T element : collectionManager.getElements()) {
       if (newElement.compareTo(element) == 1) {
-        removeByIdCommand.execute(Integer.toString(collectionManager.getId(element)));
+        removeByIdCommand.execute(new Request(null, Integer.toString(element.getId()), null));
       }
     }
     collectionManager.removeElement(newElement);
-    return (
-        "Количество элементов удаленных командой remove_lower: "
-            + (oldSize - collectionManager.objectsSize() + 1));
+    return(
+            "Количество элементов удаленных командой remove_lower: "
+                    + (oldSize - collectionManager.objectsSize() + 1));
   }
 
   @Override

@@ -5,26 +5,23 @@ import managers.CollectionManager;
 
 import java.util.TreeSet;
 
-/** Класс для генерации id */
-public class IdCreator<T extends Comparable<T> & Identifiable> {
-  /**
-   * Конструктор
-   *
-   * @param collectionManager менеджер коллекций
-   */
-  public IdCreator(CollectionManager<T> collectionManager) {
-    this.collectionManager = collectionManager;
-  }
 
-  private final CollectionManager<T> collectionManager;
-  private static final TreeSet<Integer> freeId = new TreeSet<>();
+public class IdCreator<T extends Identifiable & Comparable<T>> implements Creator<T>{
+    private final CollectionManager<T> collectionManager;
+    private static final TreeSet<Integer> freeId = new TreeSet<>();
+
+    public IdCreator(CollectionManager<T> collectionManager) {
+      this.collectionManager = collectionManager;
+    }
+
+
 
   /**
    * Возвращает наименьший свободный id
    *
    * @return id
    */
-  public int getId() {
+  public int create() {
     if (freeId.isEmpty()) {
       return collectionManager.getObjectsId().last() + 1;
     } else {

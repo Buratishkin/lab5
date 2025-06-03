@@ -74,7 +74,9 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
   }
 
   public boolean contains(int id) {
-    Method getIdMethod = getObjectMethod(getById(id), "getId");
+    Method getIdMethod;
+    if (getById(id) != null) getIdMethod = getObjectMethod(getById(id), "getId");
+    else return false;
 
     for (T element : objects) {
       int elementId = (int) invokeObjectMethod(getIdMethod, element);

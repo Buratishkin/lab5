@@ -4,6 +4,7 @@ import interfaces.Identifiable;
 import io.FileManager;
 import io.Writer;
 import managers.CollectionManager;
+import network.Request;
 
 /** Сохраняет коллекцию в файл */
 public class SaveCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
@@ -28,11 +29,11 @@ public class SaveCommand<T extends Comparable<T> & Identifiable> extends Abstrac
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
-    if (arg.isEmpty()) {
+  public String execute(Request request) {
+    if (request.getArgument().isEmpty()) {
       throw new IllegalArgumentException("Не передано имя файла.");
     }
     try {

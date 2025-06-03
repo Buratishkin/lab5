@@ -2,6 +2,7 @@ package commands;
 
 import interfaces.Identifiable;
 import managers.CollectionManager;
+import network.Request;
 import service.IdCreator;
 
 /** Очищает коллекцию */
@@ -24,10 +25,10 @@ public class ClearCommand<T extends Comparable<T> & Identifiable> extends Abstra
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
+  public String execute(Request request) {
     collectionManager.clearCollection();
     idCreator.clearId();
     return "Коллекция очищена";

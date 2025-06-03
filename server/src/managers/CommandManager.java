@@ -31,4 +31,8 @@ public class CommandManager {
   public AbstractCommand getCommand(String name) {
     return commands.get(name);
   }
+
+  public void start(){
+
+  }
 }

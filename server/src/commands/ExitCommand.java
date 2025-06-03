@@ -1,5 +1,7 @@
 package commands;
 
+import network.Request;
+
 /** Завершает программу без сохранения в файл */
 public class ExitCommand extends AbstractCommand {
   /** Конструктор */
@@ -10,10 +12,10 @@ public class ExitCommand extends AbstractCommand {
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
+  public String execute(Request request) {
     System.exit(0);
     return "Завершение программы";
   }

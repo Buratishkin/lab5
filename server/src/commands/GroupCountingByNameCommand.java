@@ -2,6 +2,7 @@ package commands;
 
 import interfaces.Identifiable;
 import managers.CollectionManager;
+import network.Request;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,10 +30,10 @@ public class GroupCountingByNameCommand<T extends Comparable<T> & Identifiable>
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
+  public String execute(Request request) {
     ArrayList<String> vowelsGroup = new ArrayList<>();
     ArrayList<String> consonantsGroup = new ArrayList<>();
     ArrayList<String> digitsGroup = new ArrayList<>();

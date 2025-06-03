@@ -1,24 +1,18 @@
 package commands;
 
+import classes.City;
 import exceptions.DuplicateElementException;
 import interfaces.Identifiable;
 import interfaces.ScriptCommand;
 import managers.CollectionManager;
 import managers.CommandManager;
+import network.Request;
 
 /** Удаляет из коллекции все элементы, превышающие заданный */
-public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
-    implements ScriptCommand {
+public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
   private final CommandManager commandManager;
-  private boolean scriptMode = false;
-  private String argument;
-
-  @Override
-  public void setScriptMode(boolean scriptMode) {
-    this.scriptMode = scriptMode;
-  }
 
   /**
    * Конструктор
@@ -35,26 +29,17 @@ public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extend
   /**
    * Выполнение команды
    *
-   * @param arg аргумент
+   * @param request аргумент
    */
   @Override
-  public String execute(String arg) {
-    argument = arg;
-    AddCommand<T> addCommand = (AddCommand<T>) commandManager.getCommand("add");
+  public String execute(Request request) {
     RemoveByIdCommand<T> removeByIdCommand =
-        (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
-
+            (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
+    T newElement = (T) request.getCity();
     int oldSize = collectionManager.objectsSize();
-    try {
-      addCommand.setScriptMode(scriptMode);
-      addCommand.execute(argument);
-    } catch (DuplicateElementException e) {
-      System.out.println(e.getMessage());
-    }
-    T newElement = collectionManager.getLastElement();
     for (T element : collectionManager.getElements()) {
       if (newElement.compareTo(element) == -1) {
-        removeByIdCommand.execute(Integer.toString(collectionManager.getId(element)));
+        removeByIdCommand.execute(new Request(null, Integer.toString(element.getId()), null));
       }
     }
     collectionManager.removeElement(newElement);
