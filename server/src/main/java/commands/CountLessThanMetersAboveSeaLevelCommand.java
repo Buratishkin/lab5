@@ -1,0 +1,65 @@
+package commands;
+
+import interfaces.Identifiable;
+import java.lang.reflect.Method;
+import manager.ValidationManager;
+import managers.CollectionManager;
+import network.Request;
+
+/** Выводит количество элементов, значение поля metersAboveSeaLevel которых меньше заданного */
+public class CountLessThanMetersAboveSeaLevelCommand<T extends Comparable<T> & Identifiable>
+    extends AbstractCommand {
+
+  private final CollectionManager<T> collectionManager;
+  private final ValidationManager validationManager;
+  private Float argument;
+
+  /**
+   * Конструктор
+   *
+   * @param collectionManager менеджер коллекций
+   */
+  public CountLessThanMetersAboveSeaLevelCommand(
+      CollectionManager<T> collectionManager, ValidationManager validationManager) {
+    super(
+        "count_less_than_meters_above_sea_level",
+        "Выводит количество элементов, значение поля metersAboveSeaLevel которых меньше заданного.");
+    this.collectionManager = collectionManager;
+    this.validationManager = validationManager;
+  }
+
+  /**
+   * Выполнение команды.
+   *
+   * @param request аргумент
+   */
+  @Override
+  public String execute(Request request) {
+    int counter = 0;
+
+    argument = validationManager.validateFloat(request.getArgument(), false);
+
+    for (T element : collectionManager.getElements()) {
+      Method getIdMethod = collectionManager.getObjectMethod(element, "getMetersAboveSeaLevel");
+      float meters = (float) collectionManager.invokeObjectMethod(getIdMethod, element);
+      if (meters < argument) {
+        counter++;
+      }
+    }
+
+    return ("Количество элементов значение уровня воды, которых меньше "
+        + argument
+        + ": "
+        + counter);
+  }
+
+  @Override
+  public boolean isArgumentable() {
+    return true;
+  }
+
+  @Override
+  public boolean isElementable() {
+    return false;
+  }
+}
