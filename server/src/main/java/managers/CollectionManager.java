@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeSet;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class CollectionManager<T extends Comparable<T> & Identifiable> {
   protected final TreeSet<T> objects = new TreeSet<>();
@@ -16,6 +17,7 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
   private T lastElement;
   private final LocalDateTime createDateTime;
   private LocalDateTime updateDateTime;
+  private final ReentrantLock sharedDataLock = new ReentrantLock();
 
   public CollectionManager() {
     createDateTime = LocalDateTime.now();
@@ -46,15 +48,18 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
   }
 
   public void addElement(T element) {
+    sharedDataLock.lock();
     Method getIdMethod = getObjectMethod(element, "getId");
     int id = (int) invokeObjectMethod(getIdMethod, element);
     objects.add(element);
     objectsMap.put(id, element);
     reverseObjectsMap.put(element, id);
     objectsId.add(id);
+    sharedDataLock.unlock();
   }
 
   public void removeElement(T element) {
+    sharedDataLock.lock();
     Method getIdMethod = getObjectMethod(element, "getId");
     int id = (int) invokeObjectMethod(getIdMethod, element);
 
@@ -62,6 +67,7 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
     objectsMap.remove(id);
     reverseObjectsMap.remove(element);
     objectsId.remove(id);
+    sharedDataLock.unlock();
   }
 
   public void removeById(int id) {

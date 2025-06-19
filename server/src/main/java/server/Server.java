@@ -38,7 +38,6 @@ public class Server {
   private final ForkJoinPool readPool = new ForkJoinPool();
   private final ExecutorService processingPool = Executors.newCachedThreadPool();
   private final ForkJoinPool writePool = new ForkJoinPool();
-  private final ReentrantLock sharedDataLock = new ReentrantLock();
 
   public static void main(String[] args) {
     new Server().start();
@@ -137,13 +136,9 @@ public class Server {
   }
 
   private void executeRequest(SocketChannel channel, Request request) {
-    sharedDataLock.lock();
-    try {
-      Response response = commandHandler.run(request);
-      writePool.execute(() -> sendResponse(channel, response));
-    } finally {
-      sharedDataLock.unlock();
-    }
+    Response response = commandHandler.run(request);
+    writePool.execute(() -> sendResponse(channel, response));
+
   }
 
   private Request deserializeRequest(byte[] data) throws IOException, ClassNotFoundException {
