@@ -1,6 +1,7 @@
 package manager;
 
 import exceptions.ValidateException;
+import java.io.Console;
 import java.util.List;
 import java.util.function.BiPredicate;
 
@@ -21,6 +22,27 @@ public class ValidationManager {
     } catch (Exception e) {
       throw new ValidateException("Передано не число типа int.");
     }
+  }
+
+  public String customValidate(
+      Console console, String prompt, String errMessage, int limit, boolean isPassword) {
+    String str = "";
+    System.out.println(
+        limit == 0
+            ? "Нет ограничение на количество символов"
+            : "Ограничение в " + limit + " символов");
+    while (str.isEmpty()) {
+      try {
+        System.out.println(prompt);
+        str =
+            isPassword
+                ? validateString(new String(console.readPassword()), false)
+                : validateString(console.readLine(), false);
+      } catch (Exception e) {
+        System.out.println(errMessage + e.getMessage());
+      }
+    }
+    return str.length() > limit && limit != 0 ? str.substring(0, 16) : str;
   }
 
   /**

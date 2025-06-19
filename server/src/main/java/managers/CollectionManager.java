@@ -64,6 +64,10 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
     objectsId.remove(id);
   }
 
+  public void removeById(int id) {
+    removeElement(getById(id));
+  }
+
   public T getById(int id) {
     return objectsMap.get(id);
   }
@@ -72,7 +76,15 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
     return reverseObjectsMap.get(element);
   }
 
-  public boolean contains(int id) {
+  public boolean contains(T object) {
+    if (object == null) return false;
+    for (T element : objects) {
+      if (object.equals(element)) return true;
+    }
+    return false;
+  }
+
+  public boolean containsById(int id) {
     Method getIdMethod;
     if (getById(id) != null) getIdMethod = getObjectMethod(getById(id), "getId");
     else return false;
@@ -81,6 +93,7 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
       int elementId = (int) invokeObjectMethod(getIdMethod, element);
       if (elementId == id) return true;
     }
+
     return false;
   }
 

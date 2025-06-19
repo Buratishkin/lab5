@@ -1,5 +1,6 @@
 package commands;
 
+import classes.City;
 import interfaces.Identifiable;
 import managers.CollectionManager;
 import managers.CommandManager;
@@ -8,7 +9,7 @@ import network.Request;
 /** Удаляет из коллекции все элементы, превышающие заданный */
 public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
-  private final CollectionManager<T> collectionManager;
+  private final CollectionManager<City> collectionManager;
   private final CommandManager commandManager;
 
   /**
@@ -17,7 +18,7 @@ public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extend
    * @param commandManager менеджер коллекций
    */
   public RemoveGreaterCommand(
-      CollectionManager<T> collectionManager, CommandManager commandManager) {
+      CollectionManager<City> collectionManager, CommandManager commandManager) {
     super("remove_greater", "Удаляет из коллекции все элементы, превышающие заданный.");
     this.commandManager = commandManager;
     this.collectionManager = collectionManager;
@@ -32,16 +33,21 @@ public class RemoveGreaterCommand<T extends Comparable<T> & Identifiable> extend
   public String execute(Request request) {
     RemoveByIdCommand<T> removeByIdCommand =
         (RemoveByIdCommand<T>) commandManager.getCommand("remove_by_id");
-    T newElement = (T) request.getCity();
+    City newElement = request.getCity();
     int oldSize = collectionManager.objectsSize();
-    for (T element : collectionManager.getElements()) {
+    for (City element : collectionManager.getElements()) {
       if (newElement.compareTo(element) == -1) {
-        removeByIdCommand.execute(new Request(null, Integer.toString(element.getId()), null));
+        removeByIdCommand.execute(
+            new Request(
+                null,
+                Integer.toString(element.getId()),
+                null,
+                request.getUserName(),
+                request.getPassword()));
       }
     }
-    collectionManager.removeElement(newElement);
     return ("Количество элементов удаленных командой remove_greater: "
-        + (oldSize - collectionManager.objectsSize() + 1));
+        + (oldSize - collectionManager.objectsSize()));
   }
 
   @Override

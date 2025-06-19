@@ -1,30 +1,33 @@
 package commands;
 
+import classes.City;
+import database.CollectionDAO;
 import interfaces.Identifiable;
-import interfaces.ScriptCommand;
+import manager.ValidationManager;
 import managers.CollectionManager;
 import network.Request;
 
 /** Обновляет значение элемента коллекции, id которого равен заданному. */
-public class UpdateCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand
-    implements ScriptCommand {
+public class UpdateCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
-  private final CollectionManager<T> collectionManager;
-  private boolean scriptMode = false;
-
-  @Override
-  public void setScriptMode(boolean scriptMode) {
-    this.scriptMode = scriptMode;
-  }
+  private final CollectionManager<City> collectionManager;
+  private final ValidationManager validationManager;
+  private final CollectionDAO collectionDAO;
+  private int argument;
 
   /**
    * Конструктор
    *
    * @param collectionManager менеджер коллекций
    */
-  public UpdateCommand(CollectionManager<T> collectionManager) {
+  public UpdateCommand(
+      CollectionManager<City> collectionManager,
+      ValidationManager validationManager,
+      CollectionDAO collectionDAO) {
     super("update", "Обновляет значение элемента коллекции, id которого равен заданному.");
     this.collectionManager = collectionManager;
+    this.validationManager = validationManager;
+    this.collectionDAO = collectionDAO;
   }
 
   /**
@@ -34,18 +37,14 @@ public class UpdateCommand<T extends Comparable<T> & Identifiable> extends Abstr
    */
   @Override
   public String execute(Request request) {
-    int argument = 0;
-    try {
-      argument = Integer.parseInt(request.getArgument());
-    } catch (NumberFormatException e) {
-      throw new NumberFormatException("Переданный аргумент " + argument + " не является числом.");
-    }
-
-    if (collectionManager.contains(argument)) {
-      collectionManager.removeElement(collectionManager.getById(argument));
-      collectionManager.addElement((T) request.getCity());
+    argument = validationManager.validateInt(request.getArgument(), false);
+    if (collectionManager.contains(collectionManager.getById(argument))) {
+      collectionDAO.update(request.getCity(), request.getUserName(), argument);
+      collectionManager.removeById(argument);
+      collectionManager.addElement(request.getCity());
       return "Город обновлён.";
-    } else return "В коллекции нет элемента с индексом " + argument;
+    }
+    throw new IllegalArgumentException("В коллекции нет элемента с id = " + argument);
   }
 
   @Override

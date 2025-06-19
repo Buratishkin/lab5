@@ -19,11 +19,7 @@ public class HelpCommand extends AbstractCommand {
     this.commandManager = commandManager;
   }
 
-  /**
-   * Выполнение команды
-   *
-   * @param arg аргумент
-   */
+  /** Выполнение команды */
   @Override
   public String execute(Request request) throws IOException {
     StringBuilder line = new StringBuilder();
@@ -31,6 +27,8 @@ public class HelpCommand extends AbstractCommand {
     for (AbstractCommand command : commandManager.getCommands().values()) {
       line.append("\n    " + command.toString());
     }
+    line.append("\n    exit: Завершает программу без сохранения в файл.");
+    line.append("\n    history: Выводит последние 11 команд");
     return line.toString();
   }
 

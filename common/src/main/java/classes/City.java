@@ -25,6 +25,8 @@ public class City implements Comparable<City>, Identifiable, Serializable {
   private StandardOfLiving standardOfLiving; // Поле не может быть null
   private Human governor; // Поле не может быть null
 
+  private int ownerId;
+
   /**
    * Конструктор
    *
@@ -39,7 +41,6 @@ public class City implements Comparable<City>, Identifiable, Serializable {
    * @param governor мэр
    */
   public City(
-      int id,
       String name,
       Coordinates coordinates,
       LocalDate localDate,
@@ -50,7 +51,6 @@ public class City implements Comparable<City>, Identifiable, Serializable {
       Government government,
       StandardOfLiving standardOfLiving,
       Human governor) {
-    this.id = id;
     this.name = name;
     this.coordinates = coordinates;
     this.creationDate = localDate;
@@ -113,6 +113,14 @@ public class City implements Comparable<City>, Identifiable, Serializable {
     this.id = id;
   }
 
+  public int getOwnerId() {
+    return ownerId;
+  }
+
+  public void setOwnerId(int ownerId) {
+    this.ownerId = ownerId;
+  }
+
   public void setName(String name) {
     this.name = name;
   }
@@ -165,7 +173,7 @@ public class City implements Comparable<City>, Identifiable, Serializable {
 
   public String toString() {
     return String.format(
-        "id = %s, название_города = %s, координаты = %s, дата_создания = %s, площадь = %s, численность = %s, высота_над_уровнем_моря = %s, климат = %s, правительство = %s, уровень_жизни = %s, мэр = %s ",
+        "id = %s, название_города = %s, координаты = %s, дата_создания = %s, площадь = %s, численность = %s, высота_над_уровнем_моря = %s, климат = %s, правительство = %s, уровень_жизни = %s, мэр = %s, id_владельца = %d ",
         id,
         name,
         coordinates.toString(),
@@ -176,7 +184,8 @@ public class City implements Comparable<City>, Identifiable, Serializable {
         climate.toString(),
         government.toString(),
         standardOfLiving.toString(),
-        governor.toString());
+        governor.toString(),
+        ownerId);
   }
 
   @Override

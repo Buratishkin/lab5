@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.Scanner;
-
 import manager.ValidationManager;
 import network.Request;
 import network.Response;
@@ -22,21 +21,26 @@ public class Client {
   private static final HistoryCommand historyCommand = new HistoryCommand();
   private static String currentCommand = "";
   private static final ValidationManager validationManager = new ValidationManager();
+  private static boolean isAccess = false;
 
   public static void main(String[] args) {
     try (SocketChannel socketChannel = SocketChannel.open();
         Scanner scanner = new Scanner(System.in)) {
-      while (PORT <= 0){
-        try{
+      while (PORT <= 0) {
+        try {
           System.out.println("Введите порт:");
           PORT = validationManager.validateInt(scanner.nextLine(), false);
-        } catch (Exception e){
+        } catch (Exception e) {
           System.out.println("Порт введен не верно: " + e.getMessage());
         }
       }
-      CommandHandler commandHandler = new CommandHandler(scanner);
+      CommandHandler commandHandler = new CommandHandler(scanner, historyCommand);
       socketChannel.connect(new InetSocketAddress(HOST, PORT));
       System.out.println("Подключено к серверу");
+
+      while (!isAccess) {
+        isAccess = authorize(commandHandler, socketChannel);
+      }
 
       while (true) {
         // Создаем запрос
@@ -115,6 +119,20 @@ public class Client {
               + " возникла ошибка: "
               + response.getMessage()
               + ColorConsole.RESET);
+    }
+  }
+
+  private static boolean authorize(CommandHandler commandHandler, SocketChannel socketChannel) {
+    try {
+      System.out.println("У вас есть аккаунт? Если да напишите \"yes\", иначе - что угодно");
+      Request request = commandHandler.authorize().get(0);
+      sendRequest(socketChannel, request);
+      Response response = receiveResponse(socketChannel);
+      printResponse(response, request.getCommandName());
+      return response.isSuccess();
+    } catch (Exception e) {
+      System.out.println("При авторизации возникла ошибка: " + e.getMessage());
+      return false;
     }
   }
 }

@@ -1,11 +1,11 @@
 package server;
 
 import classes.City;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import commands.*;
-import io.FileManager;
-import io.XMLReader;
-import io.XMLWriter;
+import database.CollectionDAO;
+import database.PSQLCollectionDAO;
+import database.PSQUserDAO;
+import database.UserDAO;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -13,14 +13,16 @@ import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.locks.ReentrantLock;
 import manager.ValidationManager;
 import managers.CollectionManager;
 import managers.CommandManager;
-import managers.EnvManager;
 import network.Request;
 import network.Response;
 import service.ColorConsole;
-import service.IdCreator;
 
 public class Server {
   private static int PORT;
@@ -28,57 +30,78 @@ public class Server {
   private static CollectionManager<City> collectionManager;
   private CommandHandler<City> commandHandler;
   private CommandManager commandManager;
-  private static XMLWriter<City> writer;
   private ValidationManager validationManager = new ValidationManager();
+  private boolean running;
+  private ServerSocketChannel serverChannel;
+  private Selector selector;
+
+  private final ForkJoinPool readPool = new ForkJoinPool();
+  private final ExecutorService processingPool = Executors.newCachedThreadPool();
+  private final ForkJoinPool writePool = new ForkJoinPool();
+  private final ReentrantLock sharedDataLock = new ReentrantLock();
 
   public static void main(String[] args) {
     new Server().start();
   }
 
   public void start() {
-    try (ServerSocketChannel serverChannel = ServerSocketChannel.open();
-        Selector selector = Selector.open();
-        Scanner scanner = new Scanner(System.in)) {
+    try (Scanner scanner = new Scanner(System.in)) {
 
-      while (PORT <= 0){
-        try{
+      while (PORT <= 0) {
+        try {
           System.out.println("Введите порт:");
           PORT = validationManager.validateInt(scanner.nextLine(), false);
-        } catch (Exception e){
+        } catch (Exception e) {
           System.out.println("Порт введен не верно: " + e.getMessage());
         }
       }
+
+      serverChannel = ServerSocketChannel.open();
+      selector = Selector.open();
 
       serverChannel.bind(new InetSocketAddress(PORT));
       serverChannel.configureBlocking(false);
       serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-      writer = startProcess();
+      startProcess();
       System.out.println("Сервер запущен на порту " + PORT);
+      running = true;
 
-      while (true) {
-        selector.select(); // Блокируемся до готовности каналов
-        Set<SelectionKey> selectedKeys = selector.selectedKeys();
-        Iterator<SelectionKey> iter = selectedKeys.iterator();
+      new Thread(this::selectorLoop).start();
 
-        while (iter.hasNext()) {
-          SelectionKey key = iter.next();
-          iter.remove();
-
-          if (key.isAcceptable()) {
-            acceptClient(serverChannel, selector);
-          } else if (key.isReadable()) {
-            readFromClient(key);
-          }
-        }
-      }
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
   }
 
-  private void acceptClient(ServerSocketChannel serverChannel, Selector selector)
-      throws IOException {
+  private void selectorLoop() {
+    while (running) {
+      try {
+        selector.select();
+        Set<SelectionKey> selectedKeys = selector.selectedKeys();
+        Iterator<SelectionKey> iter = selectedKeys.iterator();
+        while (iter.hasNext()) {
+          SelectionKey key = iter.next();
+          iter.remove(); // Критически важно!
+
+          if (!key.isValid()) continue;
+
+          if (key.isAcceptable()) {
+            acceptClient();
+          }
+
+          if (key.isReadable()) {
+            readPool.execute(() -> readFromClient(key));
+          }
+        }
+      } catch (Exception e) {
+        System.out.println("Возникла ошибка при принятии соединения: " + e.getMessage());
+        running = false;
+      }
+    }
+  }
+
+  private void acceptClient() throws IOException {
     SocketChannel clientChannel = serverChannel.accept();
     clientChannel.configureBlocking(false);
     clientChannel.register(selector, SelectionKey.OP_READ);
@@ -105,23 +128,21 @@ public class Server {
         Request request = deserializeRequest(data);
         System.out.println(ColorConsole.YELLOW + "Получен запрос: " + request + ColorConsole.RESET);
 
-        Response response = commandHandler.run(request);
-
-        sendResponse(channel, response);
-        if (response.isSuccess())
-          System.out.println(
-              ColorConsole.GREEN
-                  + "Команда выполнена, ответ отправлен клиенту"
-                  + ColorConsole.RESET);
-        else
-          System.out.println(
-              ColorConsole.RED
-                  + "Во время выполнения команды возникла ошибка, ответ отправлен клиенту"
-                  + ColorConsole.RESET);
+        processingPool.execute(() -> executeRequest(channel, request));
       }
     } catch (IOException | ClassNotFoundException e) {
       System.err.println("Ошибка обработки запроса: " + e.getMessage());
       closeChannel(channel);
+    }
+  }
+
+  private void executeRequest(SocketChannel channel, Request request) {
+    sharedDataLock.lock();
+    try {
+      Response response = commandHandler.run(request);
+      writePool.execute(() -> sendResponse(channel, response));
+    } finally {
+      sharedDataLock.unlock();
     }
   }
 
@@ -132,21 +153,31 @@ public class Server {
     }
   }
 
-  private void sendResponse(SocketChannel channel, Response response) throws IOException {
+  private void sendResponse(SocketChannel channel, Response response) {
+    if (response.isSuccess())
+      System.out.println(
+          ColorConsole.GREEN + "Команда выполнена, ответ отправлен клиенту" + ColorConsole.RESET);
+    else
+      System.out.println(
+          ColorConsole.RED
+              + "Во время выполнения команды возникла ошибка, ответ отправлен клиенту"
+              + ColorConsole.RESET);
+
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
       oos.writeObject(response);
+
+      byte[] responseData = baos.toByteArray();
+      ByteBuffer buffer = ByteBuffer.wrap(responseData);
+      channel.write(buffer);
+    } catch (IOException e) {
+      throw new RuntimeException("Во время отправки ответа возникла ошибка: " + e.getMessage());
     }
-    byte[] responseData = baos.toByteArray();
-    ByteBuffer buffer = ByteBuffer.wrap(responseData);
-    channel.write(buffer);
   }
 
   private static void closeChannel(SocketChannel channel) {
     try {
       if (channel != null) {
-        writer.writeToFile(
-            writer.getFileManager().convertCollectionToList(collectionManager.getElements()));
         channel.close();
       }
     } catch (IOException e) {
@@ -154,28 +185,19 @@ public class Server {
     }
   }
 
-  private XMLWriter<City> startProcess() {
+  private void startProcess() {
     commandManager = new CommandManager();
     collectionManager = new CollectionManager<>();
-    commandHandler = new CommandHandler<>(collectionManager, commandManager);
+    CollectionDAO psqlCollectionDAO = new PSQLCollectionDAO();
+    UserDAO psqlUserDAO = new PSQUserDAO();
+    commandHandler = new CommandHandler<>(collectionManager, commandManager, psqlUserDAO);
     ValidationManager validationManager = new ValidationManager();
-    EnvManager envManager = new EnvManager();
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    FileManager<City> fIleManager =
-        new FileManager<>(
-            System.getenv(envManager.getEnv()), collectionManager, objectMapper, City.class);
+    psqlCollectionDAO.getCities().stream().forEach(collectionManager::addElement);
 
-    XMLWriter<City> writer = new XMLWriter<>(fIleManager);
-    XMLReader<City> reader = new XMLReader<>(fIleManager);
-
-    fIleManager.convertListToCollection(reader.readFromFile());
-
-    IdCreator<City> idCreator = new IdCreator<>(collectionManager);
-    idCreator.addFreeId();
-
-    commandManager.addInCommands("add", new AddCommand<>(collectionManager));
-    commandManager.addInCommands("clear", new ClearCommand<>(collectionManager, idCreator));
+    commandManager.addInCommands(
+        "add", new AddCommand<>(collectionManager, psqlCollectionDAO, psqlUserDAO));
+    commandManager.addInCommands("clear", new ClearCommand<>(collectionManager, psqlCollectionDAO));
     commandManager.addInCommands(
         "count_less_than_meters_above_sea_level",
         new CountLessThanMetersAboveSeaLevelCommand<>(collectionManager, validationManager));
@@ -186,13 +208,16 @@ public class Server {
     commandManager.addInCommands("help", new HelpCommand(commandManager));
     commandManager.addInCommands("info", new InfoCommand<>(collectionManager));
     commandManager.addInCommands(
-        "remove_by_id", new RemoveByIdCommand<>(collectionManager, idCreator));
+        "remove_by_id",
+        new RemoveByIdCommand<>(collectionManager, validationManager, psqlCollectionDAO));
     commandManager.addInCommands(
         "remove_greater", new RemoveGreaterCommand<>(collectionManager, commandManager));
     commandManager.addInCommands(
         "remove_lower", new RemoveLowerCommand<>(collectionManager, commandManager));
     commandManager.addInCommands("show", new ShowCommand<>(collectionManager));
-    commandManager.addInCommands("update", new UpdateCommand<>(collectionManager));
-    return writer;
+    commandManager.addInCommands(
+        "update", new UpdateCommand<>(collectionManager, validationManager, psqlCollectionDAO));
+    commandManager.addInServerCommands("registration", new RegistrationCommand(psqlUserDAO));
+    commandManager.addInServerCommands("login", new LogInCommand(psqlUserDAO));
   }
 }
