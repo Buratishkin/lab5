@@ -12,7 +12,7 @@ import java.util.List;
 
 public class PSQLCollectionDAO implements CollectionDAO {
   @Override
-  public void remove(String user, int id) {
+  public synchronized void remove(String user, int id) {
     try {
       checkOwner(user, id);
       String sql = "DELETE FROM collection WHERE id = " + id;
@@ -27,7 +27,7 @@ public class PSQLCollectionDAO implements CollectionDAO {
   }
 
   @Override
-  public void update(City updatedCity, String user, int id) {
+  public synchronized void update(City updatedCity, String user, int id) {
     try {
       int ownerId = checkOwner(user, id);
       String sql =
@@ -67,7 +67,7 @@ public class PSQLCollectionDAO implements CollectionDAO {
   }
 
   @Override
-  public List<City> getCities() {
+  public synchronized List<City> getCities() {
     List<City> cities = new ArrayList<>();
     String sql = "SELECT * FROM collection";
     try (Connection connection = DBManager.getConnection();
@@ -105,7 +105,7 @@ public class PSQLCollectionDAO implements CollectionDAO {
   }
 
   @Override
-  public City add(City city) {
+  public synchronized City add(City city) {
     String sql =
         """
                 INSERT INTO collection (
@@ -143,7 +143,7 @@ public class PSQLCollectionDAO implements CollectionDAO {
     }
   }
 
-  private int checkOwner(String user, int id) throws SQLException {
+  private synchronized int checkOwner(String user, int id) throws SQLException {
     String sql =
         """
         SELECT collection.userId FROM collection
@@ -163,7 +163,7 @@ public class PSQLCollectionDAO implements CollectionDAO {
   }
 
   @Override
-  public void clear() {
+  public synchronized void clear() {
     String sql = "DELETE FROM collection";
     try (Connection connection = DBManager.getConnection();
         PreparedStatement statement = connection.prepareStatement(sql)) {

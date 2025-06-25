@@ -4,16 +4,14 @@ import interfaces.Identifiable;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CollectionManager<T extends Comparable<T> & Identifiable> {
-  protected final TreeSet<T> objects = new TreeSet<>();
+  protected final SortedSet<T> objects = Collections.synchronizedSortedSet(new TreeSet<>());
   protected final HashMap<Integer, T> objectsMap = new HashMap<>();
   protected final HashMap<T, Integer> reverseObjectsMap = new HashMap<>();
-  protected final TreeSet<Integer> objectsId = new TreeSet<>();
+  protected final SortedSet<Integer> objectsId = Collections.synchronizedSortedSet(new TreeSet<>());
   private T lastElement;
   private final LocalDateTime createDateTime;
   private LocalDateTime updateDateTime;
@@ -48,18 +46,16 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
   }
 
   public void addElement(T element) {
-    sharedDataLock.lock();
     Method getIdMethod = getObjectMethod(element, "getId");
     int id = (int) invokeObjectMethod(getIdMethod, element);
     objects.add(element);
     objectsMap.put(id, element);
     reverseObjectsMap.put(element, id);
     objectsId.add(id);
-    sharedDataLock.unlock();
   }
 
   public void removeElement(T element) {
-    sharedDataLock.lock();
+
     Method getIdMethod = getObjectMethod(element, "getId");
     int id = (int) invokeObjectMethod(getIdMethod, element);
 
@@ -67,7 +63,6 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
     objectsMap.remove(id);
     reverseObjectsMap.remove(element);
     objectsId.remove(id);
-    sharedDataLock.unlock();
   }
 
   public void removeById(int id) {
@@ -111,7 +106,7 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
     this.lastElement = lastElement;
   }
 
-  public TreeSet<Integer> getObjectsId() {
+  public SortedSet<Integer> getObjectsId() {
     return objectsId;
   }
 

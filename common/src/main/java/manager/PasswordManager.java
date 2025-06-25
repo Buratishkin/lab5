@@ -1,4 +1,4 @@
-package managers;
+package manager;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -29,7 +29,7 @@ public class PasswordManager {
       System.arraycopy(PEPPER_BYTES, 0, combined, 0, PEPPER_BYTES.length);
       System.arraycopy(passwordBytes, 0, combined, PEPPER_BYTES.length, passwordBytes.length);
       System.arraycopy(
-          saltBytes, 0, combined, PEPPER_BYTES.length + passwordBytes.length, saltBytes.length);
+              saltBytes, 0, combined, PEPPER_BYTES.length + passwordBytes.length, saltBytes.length);
 
       byte[] hashBytes = digest.digest(combined);
 

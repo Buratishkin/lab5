@@ -1,6 +1,8 @@
 package network;
 
 import classes.City;
+import manager.PasswordManager;
+
 import java.io.Serializable;
 
 public class Request implements Serializable {
@@ -9,13 +11,15 @@ public class Request implements Serializable {
   private final City city;
   private final String userName;
   private final String password;
+  private final String salt;
 
   public Request(String commandName, String arg, City city, String userName, String password) {
     this.commandName = commandName;
     this.arg = arg;
     this.city = city;
     this.userName = userName;
-    this.password = password;
+    this.salt = PasswordManager.getSalt();
+    this.password = PasswordManager.hash(password, salt);
   }
 
   public String getCommandName() {
@@ -56,5 +60,9 @@ public class Request implements Serializable {
             + city
             + "| пользователь: "
             + userName;
+  }
+
+  public String getSalt() {
+    return salt;
   }
 }

@@ -1,7 +1,7 @@
 package commands;
 
 import database.UserDAO;
-import managers.PasswordManager;
+import manager.PasswordManager;
 import network.Request;
 
 public class RegistrationCommand implements AuthorizationCommand {

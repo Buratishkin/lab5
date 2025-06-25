@@ -5,6 +5,8 @@ import io.CityDataReader;
 import io.CityInputManager;
 import java.io.IOException;
 import java.util.*;
+
+import manager.PasswordManager;
 import manager.ValidationManager;
 import network.Request;
 
@@ -92,8 +94,7 @@ public class CommandHandler {
             "Ошибка для имени пользователя: ",
             0,
             false);
-    password =
-        validationManager.customValidate(
+    password = validationManager.customValidate(
             System.console(), "Введите пароль: ", "Ошибка для пароля: ", 16, true);
 
     String[] parts = {type, null, userName, password};

@@ -12,7 +12,7 @@ public class PSQUserDAO implements UserDAO {
 
     if (checkUser(user)) {
       try (Connection connection = DBManager.getConnection();
-          PreparedStatement statement = connection.prepareStatement(sql)) {
+           PreparedStatement statement = connection.prepareStatement(sql)) {
 
         statement.setString(1, user);
         ResultSet resultSet = statement.executeQuery();
@@ -31,16 +31,16 @@ public class PSQUserDAO implements UserDAO {
   @Override
   public void registration(String user, String hash, String salt) throws SQLException {
     String sql =
-        """
-        INSERT INTO users (
-        name, password, salt)
-        VALUES (?, ?, ?)""";
+            """
+            INSERT INTO users (
+            name, password, salt)
+            VALUES (?, ?, ?)""";
 
     if (checkUser(user)) {
       throw new IllegalArgumentException("Такой пользователь уже существует");
     } else {
       try (Connection connection = DBManager.getConnection();
-          PreparedStatement statement = connection.prepareStatement(sql)) {
+           PreparedStatement statement = connection.prepareStatement(sql)) {
         statement.setString(1, user);
         statement.setString(2, hash);
         statement.setString(3, salt);
@@ -55,8 +55,8 @@ public class PSQUserDAO implements UserDAO {
   private boolean checkUser(String user) throws SQLException {
     String sql = "SELECT name FROM users";
     try (Connection connection = DBManager.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql);
-        ResultSet resultSet = statement.executeQuery()) {
+         PreparedStatement statement = connection.prepareStatement(sql);
+         ResultSet resultSet = statement.executeQuery()) {
       while (resultSet.next()) {
         if (resultSet.getString("name").equals(user)) return true;
       }
@@ -71,7 +71,7 @@ public class PSQUserDAO implements UserDAO {
     String sql = "SELECT id FROM users WHERE name = ?";
 
     try (Connection connection = DBManager.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql)) {
+         PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setString(1, userName);
       ResultSet resultSet = statement.executeQuery();
       if (checkUser(userName)) {
