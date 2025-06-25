@@ -45,14 +45,6 @@ public class CityInputManager implements InputManager<City> {
 
     City city =
         new City(
-            customId != 0
-                ? customId
-                : (idCreator != null
-                    ? idCreator.create()
-                    : cityDataReader.readAnything(
-                        "id города: ",
-                        "Введено неправильное значение для id. Попробуйте ещё раз",
-                        input -> validationManager.validateInt(input, false))),
             cityDataReader.readAnything(
                 "название города: ",
                 "Введено неправильное значение для name. Попробуйте ещё раз",

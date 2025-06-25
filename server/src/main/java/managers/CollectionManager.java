@@ -4,18 +4,18 @@ import interfaces.Identifiable;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class CollectionManager<T extends Comparable<T> & Identifiable> {
-  protected final TreeSet<T> objects = new TreeSet<>();
+  protected final SortedSet<T> objects = Collections.synchronizedSortedSet(new TreeSet<>());
   protected final HashMap<Integer, T> objectsMap = new HashMap<>();
   protected final HashMap<T, Integer> reverseObjectsMap = new HashMap<>();
-  protected final TreeSet<Integer> objectsId = new TreeSet<>();
+  protected final SortedSet<Integer> objectsId = Collections.synchronizedSortedSet(new TreeSet<>());
   private T lastElement;
   private final LocalDateTime createDateTime;
   private LocalDateTime updateDateTime;
+  private final ReentrantLock sharedDataLock = new ReentrantLock();
 
   public CollectionManager() {
     createDateTime = LocalDateTime.now();
@@ -55,6 +55,7 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
   }
 
   public void removeElement(T element) {
+
     Method getIdMethod = getObjectMethod(element, "getId");
     int id = (int) invokeObjectMethod(getIdMethod, element);
 
@@ -62,6 +63,10 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
     objectsMap.remove(id);
     reverseObjectsMap.remove(element);
     objectsId.remove(id);
+  }
+
+  public void removeById(int id) {
+    removeElement(getById(id));
   }
 
   public T getById(int id) {
@@ -72,7 +77,15 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
     return reverseObjectsMap.get(element);
   }
 
-  public boolean contains(int id) {
+  public boolean contains(T object) {
+    if (object == null) return false;
+    for (T element : objects) {
+      if (object.equals(element)) return true;
+    }
+    return false;
+  }
+
+  public boolean containsById(int id) {
     Method getIdMethod;
     if (getById(id) != null) getIdMethod = getObjectMethod(getById(id), "getId");
     else return false;
@@ -81,6 +94,7 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
       int elementId = (int) invokeObjectMethod(getIdMethod, element);
       if (elementId == id) return true;
     }
+
     return false;
   }
 
@@ -92,7 +106,7 @@ public class CollectionManager<T extends Comparable<T> & Identifiable> {
     this.lastElement = lastElement;
   }
 
-  public TreeSet<Integer> getObjectsId() {
+  public SortedSet<Integer> getObjectsId() {
     return objectsId;
   }
 

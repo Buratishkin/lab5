@@ -1,12 +1,16 @@
 package managers;
 
 import commands.AbstractCommand;
+import commands.AuthorizationCommand;
+import commands.Command;
 import java.util.HashMap;
 
 /** Менеджер для хранения всех команд */
 public class CommandManager {
   /** Словарь для хранения команд */
   private final HashMap<String, AbstractCommand> commands = new HashMap<>();
+
+  private final HashMap<String, AuthorizationCommand> serverCommands = new HashMap<>();
 
   /**
    * Добавление команды в словарь
@@ -18,6 +22,10 @@ public class CommandManager {
     commands.put(name, command);
   }
 
+  public void addInServerCommands(String name, AuthorizationCommand command) {
+    serverCommands.put(name, command);
+  }
+
   /**
    * Возвращает словарь команд
    *
@@ -27,9 +35,11 @@ public class CommandManager {
     return commands;
   }
 
-  public AbstractCommand getCommand(String name) {
+  public Command getCommand(String name) {
     return commands.get(name);
   }
 
-  public void start() {}
+  public Command getServerCommand(String name) {
+    return serverCommands.get(name);
+  }
 }

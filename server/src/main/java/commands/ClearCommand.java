@@ -1,25 +1,25 @@
 package commands;
 
+import database.CollectionDAO;
 import interfaces.Identifiable;
 import managers.CollectionManager;
 import network.Request;
-import service.IdCreator;
 
 /** Очищает коллекцию */
 public class ClearCommand<T extends Comparable<T> & Identifiable> extends AbstractCommand {
 
   private final CollectionManager<T> collectionManager;
-  private final IdCreator<T> idCreator;
+  private final CollectionDAO collectionDAO;
 
   /**
    * Конструктор
    *
    * @param collectionManager менеджер коллекций
    */
-  public ClearCommand(CollectionManager<T> collectionManager, IdCreator<T> idCreator) {
+  public ClearCommand(CollectionManager<T> collectionManager, CollectionDAO collectionDAO) {
     super("clear", "Очищает коллекцию.");
     this.collectionManager = collectionManager;
-    this.idCreator = idCreator;
+    this.collectionDAO = collectionDAO;
   }
 
   /**
@@ -30,7 +30,7 @@ public class ClearCommand<T extends Comparable<T> & Identifiable> extends Abstra
   @Override
   public String execute(Request request) {
     collectionManager.clearCollection();
-    idCreator.clearId();
+    collectionDAO.clear();
     return "Коллекция очищена";
   }
 
