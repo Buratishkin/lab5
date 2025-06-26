@@ -1,6 +1,8 @@
 package io;
 
 import classes.City;
+import classes.Coordinates;
+import classes.Human;
 import enums.Climate;
 import enums.Government;
 import enums.StandardOfLiving;
@@ -8,6 +10,8 @@ import exceptions.ValidateException;
 import manager.ValidationManager;
 import service.Creator;
 import service.DateCreator;
+
+import java.util.LinkedList;
 
 public class CityInputManager implements InputManager<City> {
   private final CityDataReader cityDataReader;
@@ -93,6 +97,23 @@ public class CityInputManager implements InputManager<City> {
                 input -> validationManager.validateEnum(StandardOfLiving.class, input)),
             cityDataReader.readHuman());
     customId = 0;
+    return city;
+  }
+
+  public City inputScriptCity(LinkedList<String> args){
+    City city = new City();
+    city.setName(args.get(0));
+    Coordinates coordinates = new Coordinates(validationManager.validateFloat(args.get(1), false), validationManager.validateLong(args.get(2), false));
+    city.setCoordinates(coordinates);
+    city.setCreationDate(DateCreator.getDate());
+    city.setArea(validationManager.validateFloat(args.get(3), false));
+    city.setPopulation(validationManager.validateInt(args.get(4), false));
+    city.setMetersAboveSeaLevel(validationManager.validateFloat(args.get(5), false));
+    city.setClimate(validationManager.validateEnum(Climate.class, args.get(6)));
+    city.setGovernment(validationManager.validateEnum(Government.class, args.get(7)));
+    city.setStandardOfLiving(validationManager.validateEnum(StandardOfLiving.class, args.get(8)));
+    Human human = new Human(args.get(9), validationManager.validateInt(args.get(10), false));
+    city.setGovernor(human);
     return city;
   }
 }

@@ -3,10 +3,10 @@ package commands;
 import classes.City;
 import io.CityDataReader;
 import io.CityInputManager;
+
 import java.io.IOException;
 import java.util.*;
 
-import manager.PasswordManager;
 import manager.ValidationManager;
 import network.Request;
 
@@ -18,8 +18,8 @@ public class CommandHandler {
   private final CityInputManager cityInputManager;
   static final List<String> CITY_COMMANDS =
       new ArrayList<>(List.of("add", "update", "remove_lower", "remove_greater"));
-  private final ExecuteScriptCommand executeScript = new ExecuteScriptCommand();
-  private LinkedList<String> queueScriptCommand;
+  private final ExecuteScriptCommand executeScript;
+  private LinkedHashMap<String, City> queueScriptCommand;
   private final HistoryCommand historyCommand;
   private String userName;
   private String password;
@@ -28,13 +28,19 @@ public class CommandHandler {
     this.scanner = scanner;
     this.cityDataReader = new CityDataReader(scanner, validationManager);
     this.cityInputManager = new CityInputManager(cityDataReader, validationManager);
+    executeScript = new ExecuteScriptCommand(cityInputManager);
     this.historyCommand = historyCommand;
   }
 
-  public List<Request> run() throws IOException {
+  public List<Request> run(String line) throws IOException {
     ArrayList<Request> requests = new ArrayList<>();
-    System.out.println("Введите команду:");
-    String[] parts = scanner.nextLine().split(" ");
+    String[] parts;
+    if (line.isEmpty()) {
+      System.out.println("Введите команду:");
+      parts = scanner.nextLine().split(" ");
+    } else {
+      parts = line.split(" ");
+    }
 
     if (parts[0].equals("execute_script")) {
       queueScriptCommand = executeScript.execute(parts);
@@ -43,18 +49,26 @@ public class CommandHandler {
     }
 
     if (!scriptMode) {
-      createRequest(parts, requests, false);
+      createRequest(parts, requests, false, null);
     } else {
-      for (String command : queueScriptCommand) {
-        createRequest(command.split(" "), requests, false);
+      for (String command : queueScriptCommand.keySet()) {
+        createRequest(command.split(" "), requests, false, queueScriptCommand.get(command));
       }
     }
 
     return requests;
   }
 
-  private void createRequest(String[] parts, List<Request> requests, boolean isAuthorize) {
-    City city = null;
+  public void createRequest(String[] parts, List<Request> requests, boolean isAuthorize, City city) {
+    if (city != null){
+      if (parts.length < 2)
+        requests.add(new Request(parts[0].toLowerCase().trim(), null, city, userName, password));
+      else
+        requests.add(
+                new Request(parts[0].toLowerCase().trim(), parts[1].trim(), city, userName, password));
+      return;
+    }
+    city = null;
     if (parts[0].equals("exit")) {
       System.out.println("Завершение работы клиента");
       System.exit(0);
@@ -98,7 +112,21 @@ public class CommandHandler {
             System.console(), "Введите пароль: ", "Ошибка для пароля: ", 16, true);
 
     String[] parts = {type, null, userName, password};
-    createRequest(parts, requests, true);
+    createRequest(parts, requests, true, null);
+    return requests;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public List<Request> executeScript(int num)  throws IOException {
+    String command = "execute_script scripts/test_" + num;
+    List<Request> requests = run(command);
     return requests;
   }
 }

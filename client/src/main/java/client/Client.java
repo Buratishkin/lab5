@@ -46,7 +46,7 @@ public class Client {
         // Создаем запрос
         List<Request> requests;
         try {
-          requests = commandHandler.run();
+          requests = commandHandler.run("");
         } catch (Exception e) {
           System.out.println(
               ColorConsole.RED
