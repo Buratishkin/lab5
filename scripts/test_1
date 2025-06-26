@@ -1,7 +1,15 @@
-show
-remove_by_id
 info
-help
-remove_by_id 3
 show
-exit
+history
+add
+    3
+    10
+    129
+    1
+    2
+    2
+    2
+    2
+    2
+    3
+    2

@@ -13,9 +13,7 @@ import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import manager.ValidationManager;
 import managers.CollectionManager;
@@ -35,9 +33,15 @@ public class Server {
   private ServerSocketChannel serverChannel;
   private Selector selector;
 
-  private final ForkJoinPool readPool = new ForkJoinPool();
-  private final ExecutorService processingPool = Executors.newCachedThreadPool();
-  private final ForkJoinPool writePool = new ForkJoinPool();
+  private final ExecutorService readPool = Executors.newFixedThreadPool(10);
+  private final ExecutorService processingPool = new ThreadPoolExecutor(
+          10,
+          50,
+          30, TimeUnit.SECONDS,
+          new LinkedBlockingQueue<>(1000),
+          new ThreadPoolExecutor.CallerRunsPolicy()
+  );
+  private final ExecutorService writePool = Executors.newFixedThreadPool(10);
 
   public static void main(String[] args) {
     new Server().start();

@@ -1,1 +1,14 @@
-execute_script scripts/test_2
+help
+add
+    2
+    3
+    3
+    3
+    3
+    3
+    3
+    3
+    3
+    3
+    3
+show

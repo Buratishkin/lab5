@@ -6,30 +6,65 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+
+import classes.City;
+import io.CityInputManager;
 import service.ColorConsole;
 
 public class ExecuteScriptCommand {
-  public LinkedList<String> execute(String[] parts) throws IOException {
+  private final CityInputManager cityInputManager;
+  public ExecuteScriptCommand(CityInputManager cityInputManager){
+    this.cityInputManager = cityInputManager;
+  }
+
+  public LinkedHashMap<String, City> execute(String[] parts) throws IOException {
     if (parts.length < 2) throw new IllegalArgumentException("Не передано название файла");
 
-    LinkedList<String> queueScriptCommand = new LinkedList<>();
+    LinkedHashMap<String, City> queueScriptCommand = new LinkedHashMap<>();
 
     String fileName = parts[1];
     Path path = Paths.get(fileName);
     canRead(path);
+    Scanner scanner = new Scanner(path);
+    String line;
 
+    String command = "";
+    LinkedList<String> args = new LinkedList<>();
+    boolean isReadArgs = false;
     try {
-      List<String> lines = Files.readAllLines(path);
-      queueScriptCommand.addAll(lines);
-    } catch (IOException e) {
+      while (scanner.hasNextLine()){
+        line = scanner.nextLine();
+        if (line.startsWith("    ")){
+          if (!isReadArgs){
+            isReadArgs = true;
+            args.clear();
+          } args.add(line.trim());
+        } else {
+          if (isReadArgs){
+            queueScriptCommand.put(command, cityInputManager.inputScriptCity(args));
+          } else if (CommandHandler.CITY_COMMANDS.contains(line)) {
+            command = line;
+            continue;
+          }
+          command = line;
+          queueScriptCommand.put(line, null);
+          isReadArgs = false;
+        }
+      }
+      if (CommandHandler.CITY_COMMANDS.contains(command)){
+        queueScriptCommand.put(command, cityInputManager.inputScriptCity(args));
+      } else{
+        queueScriptCommand.put(command, null);
+      }
+
+    } catch (Exception e) {
       throw new IOException(e.getMessage());
     }
 
     System.out.println(ColorConsole.PURPLE + "Команды в скрипте:");
-    for (String command : queueScriptCommand) {
-      System.out.println(command);
+    for (String cmnd : queueScriptCommand.keySet()) {
+      System.out.println(cmnd + ": " + queueScriptCommand.get(cmnd));
     }
     System.out.print(ColorConsole.RESET);
     return queueScriptCommand;

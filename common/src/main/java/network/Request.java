@@ -19,7 +19,7 @@ public class Request implements Serializable {
     this.city = city;
     this.userName = userName;
     this.salt = PasswordManager.getSalt();
-    this.password = PasswordManager.hash(password, salt);
+    this.password = password;
   }
 
   public String getCommandName() {

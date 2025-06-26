@@ -1,0 +1,14 @@
+remove_by_id 1
+group_counting_by_name
+add
+    9
+    123
+    123291
+    2
+    3
+    1
+    2
+    3
+    1
+    2
+    3
